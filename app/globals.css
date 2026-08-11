@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* humehealth-derived palette (red/danger token swapped for yellow) */
+:root {
+  --background: #121212;
+  --surface: #000000;
+  --foreground: #ffffff;
+  --muted: #4e5462;
+  --accent: #0f75ff;
+  --accent-hover: #0c5fd1;
+  --border: #1b1b1b;
+  --warning: #facc15;
+  --success: #4ade80;
+  --radius-theme: 15px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-border: var(--border);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --font-sans: var(--font-manrope);
+  --font-heading: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
