@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
-/* humehealth-derived palette (red/danger token swapped for yellow) */
+/* Athletic navy/teal palette, with a semantic green/amber/red mapping for
+   readiness bands (high/moderate/low). */
 :root {
-  --background: #121212;
-  --surface: #000000;
-  --foreground: #ffffff;
-  --muted: #4e5462;
-  --accent: #0f75ff;
-  --accent-hover: #0c5fd1;
-  --border: #1b1b1b;
-  --warning: #facc15;
-  --success: #4ade80;
+  --background: #0b1220;
+  --surface: #162033;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --accent: #22d3a7;
+  --accent-hover: #1cae8b;
+  --border: #1e293b;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --danger: #f87171;
   --radius-theme: 15px;
 }
 
@@ -24,6 +26,7 @@
   --color-border: var(--border);
   --color-warning: var(--warning);
   --color-success: var(--success);
+  --color-danger: var(--danger);
   --font-sans: var(--font-manrope);
   --font-heading: var(--font-inter);
 }

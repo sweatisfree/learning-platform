@@ -11,9 +11,16 @@ import {
   computeAutonomicBaseline,
   computeAutonomicRecoveryIndex,
   type AutonomicReading,
+  type AutonomicRecoveryIndex,
 } from "@/lib/engine/loadCalculator";
 
 type TokenStatus = "loading" | "none" | "configured";
+
+const BAND_COLOR_CLASS: Record<AutonomicRecoveryIndex["band"], string> = {
+  high: "text-success",
+  moderate: "text-warning",
+  low: "text-danger",
+};
 
 // Plain data fetchers with no setState inside — state updates always happen
 // in an explicit .then() callback at the call site, never inside the effect
@@ -221,7 +228,7 @@ export default function SettingsPage() {
       {recoveryIndex && (
         <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
           <p className="mb-1 text-sm font-semibold">Latest Autonomic Recovery Index</p>
-          <p className="font-heading text-2xl font-bold capitalize">
+          <p className={`font-heading text-2xl font-bold capitalize ${BAND_COLOR_CLASS[recoveryIndex.band]}`}>
             {recoveryIndex.score.toFixed(0)} · {recoveryIndex.band}
           </p>
           <p className="mt-1 text-xs text-muted">
