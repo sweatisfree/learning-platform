@@ -168,10 +168,20 @@ export default function SettingsPage() {
 
       <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
         <p className="mb-1 text-sm font-semibold">HealthKit Sync</p>
+        <p className="mb-3 text-sm text-muted">
+          Requires an Apple Watch (or similar wearable) and the Health Auto Export app (Premium tier) from
+          the App Store.
+        </p>
+        <ol className="mb-4 list-decimal space-y-1 pl-5 text-sm text-muted">
+          <li>Generate a token below and copy it.</li>
+          <li>In Health Auto Export, create a REST API automation using the URL below.</li>
+          <li>
+            Add a header named <code>X-Health-Token</code> set to your token.
+          </li>
+          <li>Select Resting Heart Rate, HRV, Sleep, and Respiratory Rate, then run it.</li>
+        </ol>
         <p className="mb-4 text-sm text-muted">
-          Automatic sync via a third-party HealthKit export app (e.g. Health Auto Export). Configure a REST
-          API automation there pointed at the URL below, with an <code>X-Health-Token</code> header set to
-          your token. Manual entry below works as a backup regardless.
+          No watch? Manual entry below works as a backup — no setup required.
         </p>
 
         <div className="space-y-1 text-sm">

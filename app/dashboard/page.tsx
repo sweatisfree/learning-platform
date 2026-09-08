@@ -71,15 +71,15 @@ export default function DashboardPage() {
       {data && !data.status.connected && (
         <div className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
           <p className="text-sm text-muted">
-            No Strava connection yet.{" "}
+            Get started in{" "}
             <Link href="/settings" className="text-accent underline">
-              Connect Strava in Settings
-            </Link>{" "}
-            to see your training load here, or{" "}
+              Settings
+            </Link>
+            : connect Strava for training load, and sync your Apple Watch for recovery data. Or{" "}
             <Link href="/dev/workouts" className="text-accent underline">
               test with an uploaded or manually-entered workout
-            </Link>
-            .
+            </Link>{" "}
+            first.
           </p>
         </div>
       )}
