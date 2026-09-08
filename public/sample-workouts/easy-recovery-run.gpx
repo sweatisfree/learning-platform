@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Thríamvos sample data" xmlns="http://www.topografix.com/GPX/1/1"
+  xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <time>2026-08-11T06:30:00Z</time>
+  </metadata>
+  <trk>
+    <name>Easy Recovery Run</name>
+    <type>running</type>
+    <trkseg>
+      <trkpt lat="40.7300" lon="-73.9950"><ele>14.0</ele><time>2026-08-11T06:30:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>95</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7325" lon="-73.9950"><ele>13.5</ele><time>2026-08-11T06:32:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>98</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7350" lon="-73.9950"><ele>13.0</ele><time>2026-08-11T06:34:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>102</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7375" lon="-73.9950"><ele>12.5</ele><time>2026-08-11T06:36:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>105</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7400" lon="-73.9950"><ele>12.0</ele><time>2026-08-11T06:38:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>108</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7425" lon="-73.9950"><ele>12.0</ele><time>2026-08-11T06:40:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>110</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7450" lon="-73.9950"><ele>11.5</ele><time>2026-08-11T06:42:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>112</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7475" lon="-73.9950"><ele>11.0</ele><time>2026-08-11T06:44:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>111</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7500" lon="-73.9950"><ele>11.0</ele><time>2026-08-11T06:46:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>109</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+      <trkpt lat="40.7525" lon="-73.9950"><ele>10.5</ele><time>2026-08-11T06:48:00Z</time><extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>107</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions></trkpt>
+    </trkseg>
+  </trk>
+</gpx>
