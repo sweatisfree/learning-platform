@@ -8,8 +8,9 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["70
 const manrope = Manrope({ variable: "--font-manrope", subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://learning-platform-sweat-is-free.vercel.app"),
   title: "Thríamvos",
-  description: "Privacy-first, on-device training readiness and recovery.",
+  description: "Training readiness and recovery, powered by Strava and Apple Health.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

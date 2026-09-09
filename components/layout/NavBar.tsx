@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
@@ -27,7 +28,8 @@ export function NavBar() {
 
   return (
     <nav className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
-      <Link href="/dashboard" className="font-heading font-bold">
+      <Link href="/dashboard" className="flex items-center gap-2 font-heading font-bold">
+        <Image src="/thriamvos-mark.svg" alt="" width={24} height={24} className="rounded-[6px]" />
         Thríamvos
       </Link>
       <div className="flex items-center gap-5 text-sm">
