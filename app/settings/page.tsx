@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
+import { PageHeading, SectionHeading } from "@/components/ui/Heading";
 import { startStravaAuthorization, fetchStravaStatus, type StravaStatus } from "@/lib/strava/oauth";
 import { supabase } from "@/lib/supabase/client";
 import { sha256Hex } from "@/lib/utils/sha256";
@@ -129,8 +131,8 @@ export default function SettingsPage() {
 
   if (!session) {
     return (
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 text-center">
-        <h1 className="font-heading text-2xl font-bold">Settings</h1>
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6">
+        <PageHeading>Settings</PageHeading>
         <p className="mt-2 text-muted">Not signed in.</p>
       </main>
     );
@@ -147,12 +149,12 @@ export default function SettingsPage() {
   const webhookUrl = typeof window !== "undefined" ? `${window.location.origin}/api/health/webhook` : "";
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 text-center">
-      <h1 className="font-heading text-2xl font-bold">Settings</h1>
+    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6">
+      <PageHeading>Settings</PageHeading>
       <p className="mt-2 text-muted">{session.user.email}</p>
 
-      <section className="mt-8 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-        <p className="mb-1 text-sm font-semibold">Integrations</p>
+      <Panel as="section" className="mt-6">
+        <SectionHeading className="mb-1">Integrations</SectionHeading>
         {stravaStatus?.connected ? (
           <>
             <p className="mb-4 text-sm text-muted">
@@ -172,10 +174,10 @@ export default function SettingsPage() {
         )}
         {connectError && <p className="mt-3 text-sm text-warning">{connectError}</p>}
         {stravaStatusError && <p className="mt-3 text-sm text-warning">{stravaStatusError}</p>}
-      </section>
+      </Panel>
 
-      <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-        <p className="mb-1 text-sm font-semibold">Athlete Profile</p>
+      <Panel as="section" className="mt-4">
+        <SectionHeading className="mb-1">Athlete Profile</SectionHeading>
         <p className="mb-4 text-sm text-muted">
           Sex, resting heart rate and max heart rate are what Banister TRIMP needs. Without all
           three, training load is measured by duration alone — a proxy, not a physiological measure.
@@ -186,10 +188,10 @@ export default function SettingsPage() {
           <p className="text-sm text-muted">Loading…</p>
         )}
         {profileError && <p className="mt-3 text-sm text-warning">{profileError}</p>}
-      </section>
+      </Panel>
 
-      <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-        <p className="mb-1 text-sm font-semibold">HealthKit Sync</p>
+      <Panel as="section" className="mt-4">
+        <SectionHeading className="mb-1">HealthKit Sync</SectionHeading>
         <p className="mb-3 text-sm text-muted">
           Requires an Apple Watch (or similar wearable) and the Health Auto Export app (Premium tier) from
           the App Store.
@@ -208,7 +210,7 @@ export default function SettingsPage() {
 
         <div className="space-y-1 text-sm">
           <p className="text-muted">Webhook URL</p>
-          <p className="break-all rounded-[var(--radius-theme)] border border-border bg-background px-3 py-2 font-mono text-xs">
+          <p className="break-all rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 font-mono text-xs">
             {webhookUrl || "POST /api/health/webhook"}
           </p>
         </div>
@@ -228,7 +230,7 @@ export default function SettingsPage() {
                 Copy this now — it won&apos;t be shown again. Set it as the <code>X-Health-Token</code>{" "}
                 header value in your export app.
               </p>
-              <p className="break-all rounded-[var(--radius-theme)] border border-border bg-background px-3 py-2 font-mono text-xs">
+              <p className="break-all rounded-[var(--radius-sm)] border border-border bg-background px-3 py-2 font-mono text-xs">
                 {generatedToken}
               </p>
               <Button variant="ghost" onClick={handleGenerateToken} className="mt-2">
@@ -245,21 +247,21 @@ export default function SettingsPage() {
 
           {tokenError && <p className="mt-3 text-sm text-warning">{tokenError}</p>}
         </div>
-      </section>
+      </Panel>
 
-      <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-        <p className="mb-1 text-sm font-semibold">Manual entry (backup)</p>
+      <Panel as="section" className="mt-4">
+        <SectionHeading className="mb-1">Manual entry (backup)</SectionHeading>
         <p className="mb-4 text-sm text-muted">
           Log resting HR, HRV, sleep, or respiratory rate by hand for days the webhook misses — any subset is
           fine.
         </p>
         <ManualHealthReadingForm userId={session.user.id} onSaved={refreshReadings} />
         {readingsError && <p className="mt-3 text-sm text-warning">{readingsError}</p>}
-      </section>
+      </Panel>
 
       {recoveryIndex && (
-        <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-          <p className="mb-1 text-sm font-semibold">Latest Autonomic Recovery Index</p>
+        <Panel as="section" className="mt-4">
+          <SectionHeading className="mb-1">Latest Autonomic Recovery Index</SectionHeading>
           {recoveryIndex.score == null || recoveryIndex.band == null ? (
             <>
               <p className="font-heading text-2xl font-bold text-muted">Not scored yet</p>
@@ -284,7 +286,7 @@ export default function SettingsPage() {
               </p>
             </>
           )}
-        </section>
+        </Panel>
       )}
     </main>
   );

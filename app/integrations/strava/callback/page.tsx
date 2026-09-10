@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { exchangeStravaCode } from "@/lib/strava/oauth";
+import { Panel } from "@/components/ui/Panel";
+import { Button } from "@/components/ui/Button";
 import type { StravaConnection } from "@/lib/strava/types";
 
 // This is Strava's OAuth redirect_uri — standard web flow, Strava sends the
@@ -33,14 +36,21 @@ export default function StravaCallbackPage() {
   }, [code]);
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 text-center">
-      {status === "error" && <p className="text-warning">{errorMessage}</p>}
-      {status === "pending" && <p className="text-muted">Connecting to Strava...</p>}
-      {status === "success" && connection && (
-        <p className="text-success">
-          Connected as {connection.athlete.firstname} {connection.athlete.lastname}.
-        </p>
-      )}
+    <main className="flex flex-1 items-center justify-center px-4">
+      <Panel className="w-full max-w-md text-center">
+        {status === "error" && <p className="text-warning">{errorMessage}</p>}
+        {status === "pending" && <p className="text-muted">Connecting to Strava…</p>}
+        {status === "success" && connection && (
+          <>
+            <p className="text-success">
+              Connected as {connection.athlete.firstname} {connection.athlete.lastname}.
+            </p>
+            <Link href="/dashboard" className="mt-5 inline-block">
+              <Button>Go to Dashboard</Button>
+            </Link>
+          </>
+        )}
+      </Panel>
     </main>
   );
 }

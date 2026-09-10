@@ -5,8 +5,12 @@ import { supabase } from "@/lib/supabase/client";
 import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Card } from "@/components/ui/Card";
+import { Panel } from "@/components/ui/Panel";
+import { PageHeading } from "@/components/ui/Heading";
 import { cn } from "@/lib/utils/cn";
+
+const AUTH_PANEL_CLASS = "mx-auto w-full max-w-md p-8 text-center sm:p-10";
+const AUTH_PANEL_PROPS = { padding: "none", className: AUTH_PANEL_CLASS } as const;
 
 export function AuthCard() {
   const { session, isLoading } = useSupabaseAuth();
@@ -51,18 +55,18 @@ export function AuthCard() {
 
   if (session) {
     return (
-      <Card>
+      <Panel {...AUTH_PANEL_PROPS}>
         <p className="mb-8 text-lg text-muted">Welcome back, {session.user.email}!</p>
         <Button variant="ghost" onClick={handleLogout}>
           Log Out
         </Button>
-      </Card>
+      </Panel>
     );
   }
 
   return (
-    <Card>
-      <h1 className="mb-4 font-heading text-4xl font-bold">Welcome to Thríamvos</h1>
+    <Panel {...AUTH_PANEL_PROPS}>
+      <PageHeading className="mb-4">Welcome to Thríamvos</PageHeading>
       <p className="mb-8 text-lg text-muted">
         Training readiness and recovery, powered by Strava and Apple Health.
       </p>
@@ -127,6 +131,6 @@ export function AuthCard() {
           {message.text}
         </p>
       )}
-    </Card>
+    </Panel>
   );
 }

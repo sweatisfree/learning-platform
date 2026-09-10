@@ -9,7 +9,7 @@ import type { AthleteProfileFields } from "@/lib/types/user-profile";
 import type { Sex } from "@/lib/types/common";
 
 const SELECT_CLASS =
-  "block w-full rounded-[var(--radius-theme)] border border-border bg-surface px-3 py-2.5 text-foreground focus:border-accent focus:outline-none";
+  "block w-full rounded-[var(--radius-sm)] border border-border bg-surface px-3 py-2.5 text-foreground focus:border-accent focus:outline-none";
 
 function toStringValue(value: number | null): string {
   return value == null ? "" : String(value);

@@ -13,6 +13,11 @@ import {
 import { computeRecoveryScore, type RecoveryScore } from "@/lib/engine/recovery-score";
 import { fetchAthleteProfile, toActivityLoadOptions } from "@/lib/health/athleteProfile";
 import { fetchAutonomicReadings } from "@/lib/health/readings";
+import { Panel } from "@/components/ui/Panel";
+import { PageHeading } from "@/components/ui/Heading";
+import { Stat } from "@/components/ui/Stat";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 import type { AthleteProfileFields } from "@/lib/types/user-profile";
 import type { Activity } from "@/lib/types/activity";
 
@@ -104,14 +109,10 @@ function LoadProvenance({ acwr }: { acwr: AcuteChronicLoad }) {
 function ReadinessCard({ readiness }: { readiness: RecoveryScore }) {
   if (readiness.score == null) {
     return (
-      <div className="rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-        <p className="mb-1 text-sm font-semibold">Readiness</p>
-        <p className="font-heading text-2xl font-bold text-muted">Not scored yet</p>
-        <p className="mt-2 text-xs text-muted">
-          Needs either a training history or a health-reading baseline to stand on. Neither is there
-          yet, so there is no number to give you.
-        </p>
-      </div>
+      <EmptyState title="Readiness — not scored yet">
+        Needs either a training history or a health-reading baseline to stand on. Neither is there
+        yet, so there is no number to give you.
+      </EmptyState>
     );
   }
 
@@ -121,11 +122,10 @@ function ReadinessCard({ readiness }: { readiness: RecoveryScore }) {
   ];
 
   return (
-    <div className="rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-      <p className="mb-1 text-sm font-semibold">Readiness</p>
-      <p className="font-heading text-3xl font-bold">{readiness.score.toFixed(0)}</p>
+    <Panel>
+      <Stat label="Readiness" value={readiness.score.toFixed(0)} />
 
-      <div className="mt-4 space-y-2 border-t border-border pt-3 text-xs">
+      <div className="mt-5 space-y-2 border-t border-border pt-4 text-xs">
         {rows.map(({ label, component }) => (
           <div key={label} className="flex items-baseline justify-between gap-3">
             <span className="text-muted">
@@ -141,14 +141,14 @@ function ReadinessCard({ readiness }: { readiness: RecoveryScore }) {
         ))}
       </div>
 
-      <p className="mt-3 text-xs text-muted">
+      <p className="mt-4 text-xs text-muted">
         Weighting v{readiness.formulaVersion} —{" "}
         <Link href="/transparency" className="underline">
           published in full
         </Link>
         .
       </p>
-    </div>
+    </Panel>
   );
 }
 
@@ -184,11 +184,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 text-center">
-      <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
+    <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6">
+      <PageHeading>Dashboard</PageHeading>
 
-      {isLoadingData && <p className="mt-4 text-muted">Loading…</p>}
-      {error && <p className="mt-4 text-warning">{error}</p>}
+      {isLoadingData && <p className="mt-6 text-muted">Loading…</p>}
+      {error && <p className="mt-6 text-warning">{error}</p>}
 
       {data?.readiness && (
         <div className="mt-6">
@@ -197,43 +197,48 @@ export default function DashboardPage() {
       )}
 
       {data && !data.status.connected && (
-        <div className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-          <p className="text-sm text-muted">
-            Get started in{" "}
-            <Link href="/settings" className="text-accent underline">
-              Settings
-            </Link>
-            : connect Strava for training load, and sync your Apple Watch for recovery data. Or{" "}
+        <div className="mt-4">
+          <EmptyState
+            title="Nothing connected yet"
+            action={
+              <Link href="/settings">
+                <Button>Go to Settings</Button>
+              </Link>
+            }
+          >
+            Connect Strava for training load, and sync your Apple Watch for recovery data. Or{" "}
             <Link href="/dev/workouts" className="text-accent underline">
               test with an uploaded or manually-entered workout
             </Link>{" "}
             first.
-          </p>
+          </EmptyState>
         </div>
       )}
 
       {data?.status.connected && (
-        <div className="mt-6 space-y-6">
-          <div className="rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
+        <div className="mt-4 space-y-4">
+          <Panel padding="dense">
             <p className="text-sm text-muted">
-              Connected as {data.status.athleteFirstname} {data.status.athleteLastname}
+              Connected to Strava as {data.status.athleteFirstname} {data.status.athleteLastname} ·{" "}
+              {data.activities.length} activit{data.activities.length === 1 ? "y" : "ies"} in the last
+              42 days.
             </p>
-            <p className="mt-1 text-sm text-muted">
-              {data.activities.length} activit{data.activities.length === 1 ? "y" : "ies"} in the last 42 days.
-            </p>
-          </div>
+          </Panel>
 
           {data.acwr ? (
-            <div className="rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
-              <p className="mb-1 text-sm font-semibold">Acute:Chronic Workload Ratio</p>
-              <p className="font-heading text-3xl font-bold">{data.acwr.ratio.toFixed(2)}</p>
-              <p className="mt-1 text-xs text-muted">
-                acute {data.acwr.acute.toFixed(1)} · chronic {data.acwr.chronic.toFixed(1)}
-              </p>
+            <Panel>
+              <Stat
+                label="Acute:Chronic Workload Ratio"
+                value={data.acwr.ratio.toFixed(2)}
+                caption={`acute ${data.acwr.acute.toFixed(1)} · chronic ${data.acwr.chronic.toFixed(1)}`}
+              />
               <LoadProvenance acwr={data.acwr} />
-            </div>
+            </Panel>
           ) : (
-            <p className="text-sm text-muted">No recent activities to compute a workload ratio from yet.</p>
+            <EmptyState title="No training load yet">
+              Strava is connected but has no activities in the last 42 days, so there is nothing to
+              compute a workload ratio from. Record an activity and it will appear here.
+            </EmptyState>
           )}
         </div>
       )}

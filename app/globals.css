@@ -13,16 +13,27 @@
   --warning: #fbbf24;
   --success: #34d399;
   --danger: #f87171;
-  --radius-theme: 15px;
 
-  /* Landing-page-only palette. The app itself stays dark; the marketing page
-     alternates dark photographic sections with light bento sections. */
+  /* One radius scale shared by the marketing page and the app, so the two
+     halves stop speaking different shape vocabularies. Buttons are pills
+     (rounded-full) everywhere and deliberately sit outside this scale. */
+  --radius-sm: 12px; /* inputs, chips, inner elements */
+  --radius-md: 18px; /* app panels */
+  --radius-lg: 26px; /* marketing bento cards */
+
+  /* Retained as an alias so existing markup keeps working while it migrates
+     onto Panel; new code should use the scale above. */
+  --radius-theme: var(--radius-md);
+  --radius-bento: var(--radius-lg);
+
+  /* Landing-page-only palette. The app stays dark; the marketing page
+     alternates dark sections with light bento sections. The dark sections use
+     the app's own --background so both halves read as the same navy. */
   --landing-light: #faf9f8;
   --landing-light-card: #eceae6;
   --landing-ink: #14100c;
   --landing-ink-muted: #5d564e;
-  --landing-black: #0a0a0b;
-  --radius-bento: 26px;
+  --landing-black: var(--background);
 }
 
 @theme inline {
