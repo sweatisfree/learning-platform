@@ -56,7 +56,7 @@ export function AuthCard() {
     <Card>
       <h1 className="mb-4 font-heading text-4xl font-bold">Welcome to Thríamvos</h1>
       <p className="mb-8 text-lg text-muted">
-        Training readiness and recovery, computed on your device.
+        Training readiness and recovery, powered by Strava and Apple Health.
       </p>
       <form onSubmit={handleLogin} className="space-y-3">
         <Input
