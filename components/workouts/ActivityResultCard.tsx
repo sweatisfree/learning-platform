@@ -1,6 +1,12 @@
 import type { Activity } from "@/lib/types/activity";
 import type { AcwrResult } from "@/lib/engine/acwr";
-import type { AutonomicRecoveryIndex } from "@/lib/engine/loadCalculator";
+import type { ActivityLoad, AutonomicRecoveryIndex } from "@/lib/engine/loadCalculator";
+
+const LOAD_METHOD_LABEL: Record<ActivityLoad["method"], string> = {
+  trimp: "TRIMP (heart rate)",
+  srpe: "sRPE (self-reported)",
+  duration: "duration only — no HR profile",
+};
 
 function formatDuration(seconds: number): string {
   const minutes = Math.round(seconds / 60);
@@ -25,7 +31,7 @@ export function ActivityResultCard({
   recovery,
 }: {
   activity: Activity;
-  load: number;
+  load: ActivityLoad;
   acwr: AcwrResult;
   recovery: AutonomicRecoveryIndex | null;
 }) {
@@ -55,7 +61,8 @@ export function ActivityResultCard({
 
       <div className="mt-4 border-t border-border pt-4">
         <p className="text-sm text-muted">Computed load (this activity)</p>
-        <p className="font-heading text-xl font-bold">{load.toFixed(1)}</p>
+        <p className="font-heading text-xl font-bold">{load.value.toFixed(1)}</p>
+        <p className="text-xs text-muted">via {LOAD_METHOD_LABEL[load.method]}</p>
       </div>
 
       <div className="mt-3">
@@ -69,9 +76,21 @@ export function ActivityResultCard({
       {recovery && (
         <div className="mt-3">
           <p className="text-sm text-muted">Autonomic Recovery Index</p>
-          <p className="font-heading text-xl font-bold capitalize">
-            {recovery.score.toFixed(0)} · {recovery.band}
-          </p>
+          {recovery.score == null ? (
+            <p className="text-sm text-muted">
+              Not enough baseline yet — needs {recovery.coverage.minReadingsPerMetric} readings of a
+              signal before a score means anything.
+            </p>
+          ) : (
+            <>
+              <p className="font-heading text-xl font-bold capitalize">
+                {recovery.score.toFixed(0)} · {recovery.band}
+              </p>
+              <p className="text-xs text-muted">
+                from {recovery.coverage.signalsUsed} of 4 signals
+              </p>
+            </>
+          )}
         </div>
       )}
     </div>

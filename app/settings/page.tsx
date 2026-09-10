@@ -7,6 +7,10 @@ import { startStravaAuthorization, fetchStravaStatus, type StravaStatus } from "
 import { supabase } from "@/lib/supabase/client";
 import { sha256Hex } from "@/lib/utils/sha256";
 import { ManualHealthReadingForm } from "@/components/health/ManualHealthReadingForm";
+import { AthleteProfileForm } from "@/components/health/AthleteProfileForm";
+import { fetchAthleteProfile } from "@/lib/health/athleteProfile";
+import { fetchAutonomicReadings } from "@/lib/health/readings";
+import type { AthleteProfileFields } from "@/lib/types/user-profile";
 import {
   computeAutonomicBaseline,
   computeAutonomicRecoveryIndex,
@@ -16,7 +20,7 @@ import {
 
 type TokenStatus = "loading" | "none" | "configured";
 
-const BAND_COLOR_CLASS: Record<AutonomicRecoveryIndex["band"], string> = {
+const BAND_COLOR_CLASS: Record<NonNullable<AutonomicRecoveryIndex["band"]>, string> = {
   high: "text-success",
   moderate: "text-warning",
   low: "text-danger",
@@ -30,35 +34,20 @@ async function loadTokenStatus(): Promise<TokenStatus> {
   return data ? "configured" : "none";
 }
 
-interface ReadingsResult {
-  readings: AutonomicReading[];
+interface ProfileResult {
+  profile: AthleteProfileFields | null;
   error: string | null;
 }
 
-async function loadReadings(): Promise<ReadingsResult> {
-  const { data, error } = await supabase
-    .from("health_readings")
-    .select("recorded_date, resting_heart_rate, hrv, sleep_hours, respiratory_rate")
-    .order("recorded_date", { ascending: true });
-  if (error) return { readings: [], error: error.message };
-  const readings: AutonomicReading[] = (data ?? [])
-    .map((row) => ({
-      restingHeartRate: row.resting_heart_rate ?? undefined,
-      hrv: row.hrv ?? undefined,
-      sleepHours: row.sleep_hours ?? undefined,
-      respiratoryRate: row.respiratory_rate ?? undefined,
-    }))
-    // Skip rows with no usable signal at all — everything else feeds the
-    // engine's graceful degradation (any subset of the four is fine).
-    .filter(
-      (reading) =>
-        reading.restingHeartRate != null ||
-        reading.hrv != null ||
-        reading.sleepHours != null ||
-        reading.respiratoryRate != null,
-    );
-  return { readings, error: null };
+async function loadProfile(userId: string): Promise<ProfileResult> {
+  try {
+    return { profile: await fetchAthleteProfile(userId), error: null };
+  } catch (error) {
+    return { profile: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
 }
+
+const loadReadings = fetchAutonomicReadings;
 
 export default function SettingsPage() {
   const { session, isLoading } = useSupabaseAuth();
@@ -72,6 +61,8 @@ export default function SettingsPage() {
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [readings, setReadings] = useState<AutonomicReading[]>([]);
   const [readingsError, setReadingsError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<AthleteProfileFields | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -80,10 +71,22 @@ export default function SettingsPage() {
       setReadings(result.readings);
       setReadingsError(result.error);
     });
+    loadProfile(userId).then((result) => {
+      setProfile(result.profile);
+      setProfileError(result.error);
+    });
     fetchStravaStatus()
       .then(setStravaStatus)
       .catch((error: Error) => setStravaStatusError(error.message));
   }, [userId]);
+
+  function refreshProfile() {
+    if (!userId) return;
+    loadProfile(userId).then((result) => {
+      setProfile(result.profile);
+      setProfileError(result.error);
+    });
+  }
 
   function refreshReadings() {
     loadReadings().then((result) => {
@@ -167,6 +170,16 @@ export default function SettingsPage() {
       </section>
 
       <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
+        <p className="mb-1 text-sm font-semibold">Athlete Profile</p>
+        <p className="mb-4 text-sm text-muted">
+          Sex, resting heart rate and max heart rate are what Banister TRIMP needs. Without all
+          three, training load is measured by duration alone — a proxy, not a physiological measure.
+        </p>
+        <AthleteProfileForm userId={session.user.id} profile={profile} onSaved={refreshProfile} />
+        {profileError && <p className="mt-3 text-sm text-warning">{profileError}</p>}
+      </section>
+
+      <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
         <p className="mb-1 text-sm font-semibold">HealthKit Sync</p>
         <p className="mb-3 text-sm text-muted">
           Requires an Apple Watch (or similar wearable) and the Health Auto Export app (Premium tier) from
@@ -238,12 +251,30 @@ export default function SettingsPage() {
       {recoveryIndex && (
         <section className="mt-6 rounded-[var(--radius-theme)] border border-border bg-surface p-5 text-left">
           <p className="mb-1 text-sm font-semibold">Latest Autonomic Recovery Index</p>
-          <p className={`font-heading text-2xl font-bold capitalize ${BAND_COLOR_CLASS[recoveryIndex.band]}`}>
-            {recoveryIndex.score.toFixed(0)} · {recoveryIndex.band}
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            Computed from {recoveryIndex.signalsUsed} of 4 signals, across {readings.length} stored reading(s).
-          </p>
+          {recoveryIndex.score == null || recoveryIndex.band == null ? (
+            <>
+              <p className="font-heading text-2xl font-bold text-muted">Not scored yet</p>
+              <p className="mt-1 text-xs text-muted">
+                A signal needs {recoveryIndex.coverage.minReadingsPerMetric} readings before its
+                baseline is worth scoring against — you have {readings.length}. Deviations measured
+                against a thinner baseline are noise, not signal.
+              </p>
+            </>
+          ) : (
+            <>
+              <p
+                className={`font-heading text-2xl font-bold capitalize ${BAND_COLOR_CLASS[recoveryIndex.band]}`}
+              >
+                {recoveryIndex.score.toFixed(0)} · {recoveryIndex.band}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                Computed from {recoveryIndex.coverage.signalsUsed} of 4 signals, across{" "}
+                {readings.length} stored reading(s).
+                {recoveryIndex.coverage.signalsShortOfBaseline > 0 &&
+                  ` ${recoveryIndex.coverage.signalsShortOfBaseline} more had data today but too thin a baseline to use.`}
+              </p>
+            </>
+          )}
         </section>
       )}
     </main>

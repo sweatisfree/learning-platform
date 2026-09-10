@@ -1,20 +1,20 @@
-// Placeholder copy — directionally plausible, deliberately non-committal.
-// Replace with the actual roadmap before shipping; these are not promises.
+// Kept deliberately non-committal — these are directions, not promises. Worth
+// a review against the real roadmap before any push that changes them.
 const ROADMAP_ITEMS = [
   {
-    stage: "In progress",
-    title: "Sleep & respiratory rate",
-    body: "Two more HealthKit vitals folded into the Autonomic Recovery Index alongside HRV and resting heart rate.",
+    stage: "Shipped",
+    title: "Provenance on every number",
+    body: "Each figure names the formula behind it, and says when it rests on an estimate rather than something you measured.",
   },
   {
     stage: "Next",
-    title: "Deeper recovery insight",
-    body: "More context on why a score moved — which signal drove it, and how far off baseline it sat.",
+    title: "Longer history",
+    body: "Twelve months of volume and consistency, rather than the current rolling six-week window.",
   },
   {
     stage: "Exploring",
-    title: "More data sources",
-    body: "Additional wearables and manual-entry paths beyond Strava and Apple Health.",
+    title: "Zone provenance from Strava",
+    body: "Reading your configured zones to show which came from real efforts and which from an age formula.",
   },
 ];
 

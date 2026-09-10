@@ -23,7 +23,7 @@ function PhoneMockup() {
 
           <div className="mt-4 rounded-2xl border border-border bg-surface p-4 text-center">
             <p className="font-heading text-5xl font-bold text-success">78</p>
-            <p className="mt-1 text-xs text-success">Green — good to train</p>
+            <p className="mt-1 text-[10px] text-muted">recovery 60% · load 40%</p>
           </div>
 
           <div className="mt-3 space-y-2">

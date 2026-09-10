@@ -166,7 +166,7 @@ export default function WorkoutsTestHarnessPage() {
                 <span>{activity.name}</span>
                 <span className="text-muted">
                   {new Date(activity.startDate).toLocaleDateString()} ·{" "}
-                  {computeActivityLoad(activity, profileOptions).toFixed(1)} load
+                  {computeActivityLoad(activity, profileOptions).value.toFixed(1)} load
                 </span>
               </li>
             ))}

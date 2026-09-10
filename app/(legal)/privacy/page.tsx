@@ -14,9 +14,9 @@ export default function PrivacyPage() {
 
       <h2>1. Special Category Data Notice</h2>
       <p>
-        Some data you provide — resting heart rate, heart rate variability (HRV), sleep duration, and
-        respiratory rate — is <strong>health data</strong>, a special category of personal data under GDPR
-        Article 9 and similar laws. We only process this data with your explicit consent, given when you
+        Some data you provide — resting heart rate, maximum heart rate, heart rate variability (HRV), sleep
+        duration, and respiratory rate — is <strong>health data</strong>, a special category of personal data
+        under GDPR Article 9 and similar laws. We only process this data with your explicit consent, given when you
         connect a HealthKit export or submit a manual entry, and only for the purpose of computing your own
         Autonomic Recovery Index. You can withdraw this consent at any time by ceasing to submit this data
         and requesting deletion (see Section 7).
@@ -33,6 +33,12 @@ export default function PrivacyPage() {
           (server-side only, never exposed to your browser) and your athlete name/ID, so we can fetch your
           recent activities (name, type, date, duration, distance, and heart rate/power if recorded) on your
           behalf. Activities themselves are fetched live and are not stored in our database.
+        </li>
+        <li>
+          <strong>Athlete profile:</strong> your sex, resting heart rate, and maximum heart rate, plus
+          whether that maximum was measured or estimated. These are the inputs the TRIMP training-load
+          formula requires; without them, load is calculated from session duration alone. You enter them
+          yourself and can change or clear them at any time in Settings.
         </li>
         <li>
           <strong>Health data:</strong> resting heart rate, HRV, sleep hours, and respiratory rate, submitted
@@ -54,6 +60,10 @@ export default function PrivacyPage() {
       <ul>
         <li>Account data — to provide the Service, under contract with you.</li>
         <li>Strava data — to provide the training-load features you requested, under contract with you.</li>
+        <li>
+          Athlete profile — under your explicit consent, to weight your training load by heart rate rather
+          than by duration alone.
+        </li>
         <li>Health data — under your explicit consent, to compute your Autonomic Recovery Index.</li>
         <li>
           Usage/technical data — under our legitimate interest in operating, securing, and improving the
