@@ -22,8 +22,9 @@ export function Hero() {
         </h1>
 
         <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/80">
-          Thríamvos unifies your Strava training load and Apple Health recovery signals — ACWR, TRIMP, sRPE,
-          HRV and resting heart rate — into one daily readiness score.
+          Thríamvos reads the training you already log and the recovery signals your body already
+          gives off, and turns them into one number each morning — with the working shown, so you
+          can see how it got there.
         </p>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">

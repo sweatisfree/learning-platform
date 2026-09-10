@@ -5,28 +5,34 @@ import Link from "next/link";
 const CARD_BASE =
   "relative flex min-h-[440px] flex-col overflow-hidden rounded-[var(--radius-bento)] p-8 sm:p-10";
 
+// Shows the score with the split that produced it, never a verdict word. The
+// app deliberately dropped prescriptive labels ("good to train") in favour of
+// descriptive ones, and the marketing page has to make the same promise.
 function ReadinessRing() {
   const circumference = 2 * Math.PI * 42;
   return (
-    <div className="relative h-[104px] w-[104px] shrink-0">
-      <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r="42" fill="rgba(0,0,0,0.45)" />
-        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="7" />
-        <circle
-          cx="50"
-          cy="50"
-          r="42"
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth="7"
-          strokeLinecap="round"
-          strokeDasharray={`${circumference * 0.78} ${circumference}`}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-heading text-2xl font-semibold text-white">78</span>
-        <span className="text-[10px] uppercase tracking-wider text-white/60">ready</span>
+    <div className="shrink-0 text-center">
+      <div className="relative h-[104px] w-[104px]">
+        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+          <circle cx="50" cy="50" r="42" fill="rgba(0,0,0,0.45)" />
+          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="7" />
+          <circle
+            cx="50"
+            cy="50"
+            r="42"
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeDasharray={`${circumference * 0.78} ${circumference}`}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="font-heading text-2xl font-semibold text-white">78</span>
+          <span className="text-[10px] uppercase tracking-wider text-white/55">today</span>
+        </div>
       </div>
+      <p className="mt-2 text-[11px] text-white/55">recovery 60% · load 40%</p>
     </div>
   );
 }
@@ -90,13 +96,14 @@ export function Bento() {
         {/* Light copy card with the in-grid CTA, mirroring the reference layout. */}
         <div className={`${CARD_BASE} justify-center bg-landing-light-card`}>
           <h2 className="max-w-sm font-heading text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-landing-ink sm:text-5xl">
-            Your training
+            One number,
             <br />
-            copilot
+            and its reasons
           </h2>
           <p className="mt-6 max-w-sm text-lg leading-relaxed text-landing-ink-muted">
-            Every activity and vital you already record becomes one clear answer to the only question that
-            matters each morning: how hard should I go today?
+            The training you already log and the vitals you already record become a single readiness
+            figure each morning — split into the two halves that made it, so you can judge it for
+            yourself instead of taking it on faith.
           </p>
           <Link
             href="/login"
@@ -122,8 +129,8 @@ export function Bento() {
                   before you feel it
                 </h2>
                 <p className="mt-4 max-w-sm leading-relaxed text-white/75">
-                  Watch acute training load rise against the chronic base you&apos;ve actually built — so a
-                  spike shows up as a number, not an injury.
+                  Your last week measured against the base you&apos;ve actually built, so a spike
+                  shows up as a number first rather than an injury later.
                 </p>
               </div>
               <ReadinessRing />
@@ -143,13 +150,15 @@ export function Bento() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/25" />
           <div className="relative mt-auto">
             <h2 className="max-w-sm font-heading text-3xl font-semibold leading-[1.12] tracking-[-0.02em] text-white sm:text-4xl">
-              No black box,
+              When it doesn&apos;t know,
               <br />
-              no guesswork
+              it says so
             </h2>
             <p className="mt-4 max-w-md leading-relaxed text-white/75">
-              Published sports-science formulas — not AI, not a proprietary score no one can inspect. Every
-              number is documented, down to the equation.
+              Most apps always show you a number. If your history is too thin for one to mean
+              anything, this one shows nothing and tells you why. Every figure that does appear names
+              the formula behind it — and flags when it&apos;s leaning on an estimate rather than
+              something you actually measured.
             </p>
             <Link
               href="/transparency"
@@ -173,8 +182,8 @@ export function Bento() {
               lead the way
             </h2>
             <p className="mt-4 max-w-sm leading-relaxed text-white/75">
-              HRV and resting heart rate measured against your own rolling baseline — never a generic
-              benchmark built from someone else&apos;s body.
+              Your normal is built from your own mornings, over weeks — never from a chart of what an
+              average body is supposed to do.
             </p>
             <div className="mt-auto pt-10">
               <BaselineBars />

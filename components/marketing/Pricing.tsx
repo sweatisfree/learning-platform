@@ -3,9 +3,9 @@ import Link from "next/link";
 const INCLUDED = [
   "Strava sync for training load",
   "Apple Health sync for recovery data",
-  "ACWR, TRIMP & sRPE calculations",
-  "Autonomic Recovery Index",
-  "Every formula documented, not black-boxed",
+  "A daily readiness figure, split into what made it",
+  "Every number labelled with the formula behind it",
+  "Told plainly when there isn't enough data to score",
 ];
 
 export function Pricing() {
