@@ -31,9 +31,12 @@ async function loadDashboardData(
   userId: string,
 ): Promise<{ data: DashboardData | null; error: string | null }> {
   try {
+    // The profile is optional context, not a prerequisite — if that table is
+    // missing or unreadable, load still computes (via the duration fallback)
+    // rather than the whole dashboard collapsing into an error message.
     const [status, profile, readingsResult] = await Promise.all([
       fetchStravaStatus(),
-      fetchAthleteProfile(userId),
+      fetchAthleteProfile(userId).catch(() => null),
       fetchAutonomicReadings(),
     ]);
 
