@@ -1,9 +1,17 @@
-import { AuthCard } from "@/components/auth/AuthCard";
+import { Hero } from "@/components/marketing/Hero";
+import { Pillars } from "@/components/marketing/Pillars";
+import { Integrations } from "@/components/marketing/Integrations";
+import { Roadmap } from "@/components/marketing/Roadmap";
+import { Pricing } from "@/components/marketing/Pricing";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center px-4">
-      <AuthCard />
+    <main className="flex-1">
+      <Hero />
+      <Pillars />
+      <Integrations />
+      <Roadmap />
+      <Pricing />
     </main>
   );
 }
