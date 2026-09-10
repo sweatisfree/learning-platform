@@ -37,10 +37,12 @@ export function AthleteProfileForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+    setHasSaved(false);
 
     if (maxHeartRate && !maxHeartRateSource) {
       setError("Tell us where the max heart rate came from — it changes how much to trust it.");
@@ -55,6 +57,7 @@ export function AthleteProfileForm({
         maxHeartRate: maxHeartRate ? Number(maxHeartRate) : null,
         maxHeartRateSource: maxHeartRateSource === "" ? null : maxHeartRateSource,
       });
+      setHasSaved(true);
       onSaved();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "Could not save your profile.");
@@ -118,6 +121,7 @@ export function AthleteProfileForm({
       </label>
 
       {error && <p className="text-sm text-warning">{error}</p>}
+      {hasSaved && !error && <p className="text-sm text-success">Profile saved.</p>}
       <Button type="submit" variant="ghost" disabled={isSaving}>
         {isSaving ? "Saving..." : "Save Profile"}
       </Button>

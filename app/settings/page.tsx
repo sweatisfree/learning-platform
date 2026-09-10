@@ -63,6 +63,10 @@ export default function SettingsPage() {
   const [readingsError, setReadingsError] = useState<string | null>(null);
   const [profile, setProfile] = useState<AthleteProfileFields | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+  // Distinguishes "still fetching" from "fetched, no profile saved yet" —
+  // AthleteProfileForm seeds its inputs on mount, so it must not mount until
+  // the real values are available or it renders permanently empty.
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -74,6 +78,7 @@ export default function SettingsPage() {
     loadProfile(userId).then((result) => {
       setProfile(result.profile);
       setProfileError(result.error);
+      setIsProfileLoaded(true);
     });
     fetchStravaStatus()
       .then(setStravaStatus)
@@ -175,7 +180,11 @@ export default function SettingsPage() {
           Sex, resting heart rate and max heart rate are what Banister TRIMP needs. Without all
           three, training load is measured by duration alone — a proxy, not a physiological measure.
         </p>
-        <AthleteProfileForm userId={session.user.id} profile={profile} onSaved={refreshProfile} />
+        {isProfileLoaded ? (
+          <AthleteProfileForm userId={session.user.id} profile={profile} onSaved={refreshProfile} />
+        ) : (
+          <p className="text-sm text-muted">Loading…</p>
+        )}
         {profileError && <p className="mt-3 text-sm text-warning">{profileError}</p>}
       </section>
 
