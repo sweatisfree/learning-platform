@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a1d12"/>
+      <stop offset="0.42" stop-color="#7a5330"/>
+      <stop offset="0.78" stop-color="#c08b4d"/>
+      <stop offset="1" stop-color="#e0b477"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.74" cy="0.3" r="0.5">
+      <stop offset="0" stop-color="#ffe0ad" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffe0ad" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a3118" stop-opacity="0"/>
+      <stop offset="1" stop-color="#241708" stop-opacity="0.85"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.13"/></feComponentTransfer>
+    </filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="26"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#base)"/>
+  <rect width="1600" height="900" fill="url(#sun)"/>
+  <g filter="url(#soft)" opacity="0.5">
+    <path d="M0 640 C 320 570, 620 690, 900 620 C 1180 550, 1400 640, 1600 590 L1600 900 L0 900 Z" fill="#3a2512"/>
+    <path d="M0 745 C 380 700, 700 800, 1020 735 C 1300 680, 1450 745, 1600 715 L1600 900 L0 900 Z" fill="#241608"/>
+  </g>
+  <rect width="1600" height="900" fill="url(#ground)"/>
+  <rect width="1600" height="900" filter="url(#grain)" opacity="0.55"/>
+</svg>

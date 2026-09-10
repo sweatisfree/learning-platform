@@ -5,8 +5,12 @@ import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
 import { NavBar } from "@/components/layout/NavBar";
 import { Footer } from "@/components/layout/Footer";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["700"] });
-const manrope = Manrope({ variable: "--font-manrope", subsets: ["latin"], weight: ["400", "700"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["500", "600", "700"] });
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://learning-platform-sweat-is-free.vercel.app"),

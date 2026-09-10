@@ -14,6 +14,15 @@
   --success: #34d399;
   --danger: #f87171;
   --radius-theme: 15px;
+
+  /* Landing-page-only palette. The app itself stays dark; the marketing page
+     alternates dark photographic sections with light bento sections. */
+  --landing-light: #faf9f8;
+  --landing-light-card: #eceae6;
+  --landing-ink: #14100c;
+  --landing-ink-muted: #5d564e;
+  --landing-black: #0a0a0b;
+  --radius-bento: 26px;
 }
 
 @theme inline {
@@ -27,6 +36,11 @@
   --color-warning: var(--warning);
   --color-success: var(--success);
   --color-danger: var(--danger);
+  --color-landing-light: var(--landing-light);
+  --color-landing-light-card: var(--landing-light-card);
+  --color-landing-ink: var(--landing-ink);
+  --color-landing-ink-muted: var(--landing-ink-muted);
+  --color-landing-black: var(--landing-black);
   --font-sans: var(--font-manrope);
   --font-heading: var(--font-inter);
 }

@@ -31,30 +31,45 @@ export function NavBar() {
     await supabase.auth.signOut();
   }
 
+  // Floating pill nav for signed-out visitors. Kept in flow (sticky, not fixed)
+  // so pages that aren't the landing page don't need offset padding; the hero
+  // pulls itself up underneath it with a negative margin.
   if (!session) {
     return (
-      <nav className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-heading font-bold">
-          <Image src="/thriamvos-mark.svg" alt="" width={24} height={24} className="rounded-[6px]" />
-          Thríamvos
-        </Link>
-        <div className="flex items-center gap-5 text-sm">
-          {PUBLIC_NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="hidden text-muted hover:text-foreground sm:inline">
-              {link.label}
+      <div className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
+        {/* Opaque enough to read consistently over both the dark hero and the
+            light bento sections it scrolls across. */}
+        <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-white/10 bg-[#141417]/90 py-2.5 pl-5 pr-2.5 backdrop-blur-xl">
+          <Link href="/" className="flex items-center gap-2 font-heading text-lg font-semibold text-white">
+            <Image src="/thriamvos-mark.svg" alt="" width={22} height={22} />
+            Thríamvos
+          </Link>
+          <div className="flex items-center gap-1 sm:gap-2">
+            {PUBLIC_NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hidden rounded-full px-4 py-2 text-sm text-white/75 transition-colors hover:text-white sm:inline-block"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" />
+            <Link
+              href="/login"
+              className="rounded-full px-3 py-2 text-sm text-white/75 transition-colors hover:text-white sm:px-4"
+            >
+              Login
             </Link>
-          ))}
-          <Link href="/login" className="text-muted hover:text-foreground">
-            Login
-          </Link>
-          <Link
-            href="/login"
-            className="rounded-[var(--radius-theme)] bg-accent px-4 py-2 font-semibold text-foreground transition-colors hover:bg-accent-hover"
-          >
-            Get Started
-          </Link>
-        </div>
-      </nav>
+            <Link
+              href="/login"
+              className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--landing-ink)] transition-opacity hover:opacity-90 sm:px-5"
+            >
+              Get Started
+            </Link>
+          </div>
+        </nav>
+      </div>
     );
   }
 
