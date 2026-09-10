@@ -8,9 +8,10 @@ export default function TermsPage() {
 
       <p>
         These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of Thríamvos (the
-        &quot;Service&quot;), operated by Sweat Is Free (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;).
-        By creating an account or using the Service, you agree to these Terms. If you do not agree, do not
-        use the Service.
+        &quot;Service&quot;), operated by Fitness and Sports Network, LLC, an Oklahoma limited liability
+        company doing business as Sweat Is Free (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). By
+        creating an account or using the Service, you agree to these Terms. If you do not agree, do not use
+        the Service.
       </p>
 
       <h2>1. Eligibility</h2>
@@ -118,9 +119,8 @@ export default function TermsPage() {
 
       <h2>11. Governing Law</h2>
       <p>
-        These Terms are governed by the laws of{" "}
-        <strong>[Insert governing state/country — to be confirmed]</strong>, without regard to its conflict
-        of law principles.
+        These Terms are governed by the laws of the State of Oklahoma, USA, without regard to its conflict of
+        law principles.
       </p>
 
       <h2>12. Changes to These Terms</h2>

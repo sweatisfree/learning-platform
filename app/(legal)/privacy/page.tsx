@@ -7,10 +7,9 @@ export default function PrivacyPage() {
       <p>Last updated: September 9, 2026</p>
 
       <p>
-        This Privacy Policy explains how Sweat Is Free (&quot;we,&quot; &quot;us&quot;) collects, uses, and
-        protects your information when you use Thríamvos (the &quot;Service&quot;). Operated by:{" "}
-        <strong>[Insert legal entity name/individual — to be confirmed]</strong>. Contact:
-        sweatisfree@gmail.com.
+        This Privacy Policy explains how Fitness and Sports Network, LLC, an Oklahoma limited liability
+        company doing business as Sweat Is Free (&quot;we,&quot; &quot;us&quot;), collects, uses, and protects
+        your information when you use Thríamvos (the &quot;Service&quot;). Contact: sweatisfree@gmail.com.
       </p>
 
       <h2>1. Special Category Data Notice</h2>
