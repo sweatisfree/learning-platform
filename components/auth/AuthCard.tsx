@@ -12,6 +12,7 @@ export function AuthCard() {
   const { session, isLoading } = useSupabaseAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
   async function handleLogin(event: FormEvent) {
@@ -25,6 +26,13 @@ export function AuthCard() {
 
   async function handleSignup() {
     setMessage(null);
+    if (!agreedToTerms) {
+      setMessage({
+        text: "You must agree to the Terms and Conditions and Privacy Policy to sign up.",
+        isError: true,
+      });
+      return;
+    }
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setMessage({ text: error.message, isError: true });
@@ -75,11 +83,36 @@ export function AuthCard() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
+        <label className="flex items-start gap-2 text-sm text-muted">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={agreedToTerms}
+            onChange={(event) => setAgreedToTerms(event.target.checked)}
+          />
+          <span>
+            I agree to the{" "}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-accent underline">
+              Terms and Conditions
+            </a>{" "}
+            and{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-accent underline">
+              Privacy Policy
+            </a>
+            .
+          </span>
+        </label>
         <div className="flex gap-3">
           <Button type="submit" className="flex-1">
             Log In
           </Button>
-          <Button type="button" variant="ghost" className="flex-1" onClick={handleSignup}>
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex-1"
+            onClick={handleSignup}
+            disabled={!agreedToTerms}
+          >
             Sign Up
           </Button>
         </div>
