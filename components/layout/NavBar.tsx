@@ -16,6 +16,7 @@ const NAV_LINKS = [
 const PUBLIC_NAV_LINKS = [
   { href: "/#roadmap", label: "Roadmap" },
   { href: "/#pricing", label: "Pricing" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 const NAV_ITEM_CLASS = "rounded-full px-3 py-2 text-sm transition-colors sm:px-4";
