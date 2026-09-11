@@ -32,7 +32,7 @@ export function AuthCard() {
     setMessage(null);
     if (!agreedToTerms) {
       setMessage({
-        text: "You must agree to the Terms and Conditions and Privacy Policy to sign up.",
+        text: "You must confirm you are 18 or older and agree to the Terms and Privacy Policy to sign up.",
         isError: true,
       });
       return;
@@ -95,7 +95,7 @@ export function AuthCard() {
             onChange={(event) => setAgreedToTerms(event.target.checked)}
           />
           <span>
-            I agree to the{" "}
+            I am 18 or older, and I agree to the{" "}
             <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-accent underline">
               Terms and Conditions
             </a>{" "}
