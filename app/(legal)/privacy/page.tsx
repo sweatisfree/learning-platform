@@ -105,9 +105,16 @@ export default function PrivacyPage() {
       <h2>7. Your Rights</h2>
       <p>
         Depending on your location, you may have the right to access, correct, delete, or export your data,
-        restrict or object to certain processing, and withdraw consent at any time. To exercise any of these
-        rights, email sweatisfree@gmail.com. We do not yet offer a self-service account-deletion button in
-        the Service — deletion requests are currently handled manually upon request.
+        restrict or object to certain processing, and withdraw consent at any time.
+      </p>
+      <p>
+        <strong>Export and deletion are both available directly in the Service</strong>, under
+        Settings → Your data. The export is a JSON file containing everything we hold about you.
+        Deletion is immediate and irreversible: it erases your profile, your health readings and your
+        Strava connection, cancels any subscription, and revokes our access to your Strava account.
+        Access tokens are excluded from the export because they are credentials rather than your
+        personal data. For anything else — correction, restriction, or objection — email
+        sweatisfree@gmail.com.
       </p>
       <p>
         If you are in the EU/EEA or UK, you also have the right to lodge a complaint with your local data

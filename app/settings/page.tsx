@@ -13,6 +13,7 @@ import { AthleteProfileForm } from "@/components/health/AthleteProfileForm";
 import { fetchAthleteProfile } from "@/lib/health/athleteProfile";
 import { fetchAutonomicReadings } from "@/lib/health/readings";
 import { SubscriptionPanel } from "@/components/billing/SubscriptionPanel";
+import { AccountDataPanel } from "@/components/account/AccountDataPanel";
 import { fetchSubscription, type Subscription } from "@/lib/stripe/subscription";
 import type { AthleteProfileFields } from "@/lib/types/user-profile";
 import {
@@ -317,6 +318,12 @@ export default function SettingsPage() {
           )}
         </Panel>
       )}
+
+      {/* Last on the page on purpose — it holds the destructive action. */}
+      <Panel as="section" className="mt-4">
+        <SectionHeading className="mb-1">Your data</SectionHeading>
+        <AccountDataPanel email={session.user.email ?? ""} />
+      </Panel>
     </main>
   );
 }

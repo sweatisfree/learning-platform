@@ -275,3 +275,73 @@ export async function upsertSubscriptionState(
   );
   if (error) throw new Error(error.message);
 }
+
+// ---------------------------------------------------------------------------
+// Account export and deletion (GDPR Arts. 15/20 access and portability, and
+// Art. 17 erasure). Both are driven from routes that have already verified the
+// caller's session; the user id passed here is never taken from client input.
+// ---------------------------------------------------------------------------
+
+export interface ExportedHealthReading {
+  recordedDate: string;
+  source: string;
+  restingHeartRate: number | null;
+  hrv: number | null;
+  sleepHours: number | null;
+  respiratoryRate: number | null;
+}
+
+export async function getHealthReadingsForExport(userId: string): Promise<ExportedHealthReading[]> {
+  const client = getServiceClient();
+  const { data, error } = await client
+    .from("health_readings")
+    .select("recorded_date, source, resting_heart_rate, hrv, sleep_hours, respiratory_rate")
+    .eq("user_id", userId)
+    .order("recorded_date", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    recordedDate: row.recorded_date as string,
+    source: row.source as string,
+    restingHeartRate: row.resting_heart_rate,
+    hrv: row.hrv,
+    sleepHours: row.sleep_hours,
+    respiratoryRate: row.respiratory_rate,
+  }));
+}
+
+export interface ExportedProfile {
+  sex: string | null;
+  restingHeartRate: number | null;
+  maxHeartRate: number | null;
+  maxHeartRateSource: string | null;
+}
+
+export async function getUserProfileForExport(userId: string): Promise<ExportedProfile | null> {
+  const client = getServiceClient();
+  const { data, error } = await client
+    .from("user_profiles")
+    .select("sex, resting_heart_rate, max_heart_rate, max_heart_rate_source")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return {
+    sex: data.sex,
+    restingHeartRate: data.resting_heart_rate,
+    maxHeartRate: data.max_heart_rate,
+    maxHeartRateSource: data.max_heart_rate_source,
+  };
+}
+
+// Deletes the auth user, which cascades every one of the five user-data tables
+// via their `on delete cascade` foreign keys. Deliberately relies on that
+// cascade rather than deleting table-by-table: a hand-written list would
+// silently stop being complete the moment a new table is added.
+//
+// Any future table holding user data MUST keep `references auth.users(id) on
+// delete cascade`, or erasure quietly becomes partial.
+export async function deleteAuthUser(userId: string): Promise<void> {
+  const client = getServiceClient();
+  const { error } = await client.auth.admin.deleteUser(userId);
+  if (error) throw new Error(error.message);
+}
