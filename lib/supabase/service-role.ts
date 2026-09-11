@@ -155,3 +155,123 @@ export async function updateStravaTokens(
     throw new Error(`Failed to update Strava tokens: ${error.message}`);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Stripe subscriptions.
+//
+// The subscriptions table has an owner SELECT policy and NO write policies, so
+// these service-role functions are the only path that can write one. They are
+// called exclusively from the verified Stripe webhook — see
+// supabase/migrations/0005_subscriptions.sql for why that matters.
+// ---------------------------------------------------------------------------
+
+export interface StoredSubscription {
+  userId: string;
+  stripeCustomerId: string;
+  stripeSubscriptionId: string | null;
+  status: string | null;
+  priceId: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  trialEnd: string | null;
+}
+
+interface SubscriptionRow {
+  user_id: string;
+  stripe_customer_id: string;
+  stripe_subscription_id: string | null;
+  status: string | null;
+  price_id: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+  trial_end: string | null;
+}
+
+const SUBSCRIPTION_COLUMNS =
+  "user_id, stripe_customer_id, stripe_subscription_id, status, price_id, current_period_end, cancel_at_period_end, trial_end";
+
+function toStoredSubscription(row: SubscriptionRow): StoredSubscription {
+  return {
+    userId: row.user_id,
+    stripeCustomerId: row.stripe_customer_id,
+    stripeSubscriptionId: row.stripe_subscription_id,
+    status: row.status,
+    priceId: row.price_id,
+    currentPeriodEnd: row.current_period_end,
+    cancelAtPeriodEnd: row.cancel_at_period_end,
+    trialEnd: row.trial_end,
+  };
+}
+
+export async function getSubscriptionByUserId(userId: string): Promise<StoredSubscription | null> {
+  const client = getServiceClient();
+  const { data, error } = await client
+    .from("subscriptions")
+    .select(SUBSCRIPTION_COLUMNS)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return toStoredSubscription(data as SubscriptionRow);
+}
+
+// Used by the webhook to confirm that the userId carried in Stripe metadata
+// really does own the customer the event is about, before trusting it.
+export async function getSubscriptionByCustomerId(
+  stripeCustomerId: string,
+): Promise<StoredSubscription | null> {
+  const client = getServiceClient();
+  const { data, error } = await client
+    .from("subscriptions")
+    .select(SUBSCRIPTION_COLUMNS)
+    .eq("stripe_customer_id", stripeCustomerId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return toStoredSubscription(data as SubscriptionRow);
+}
+
+// Records the Stripe customer before any subscription exists, so a checkout
+// that is started but never completed still leaves us able to match the
+// customer back to a user on a later webhook.
+export async function linkStripeCustomer(userId: string, stripeCustomerId: string): Promise<void> {
+  const client = getServiceClient();
+  const { error } = await client
+    .from("subscriptions")
+    .upsert({ user_id: userId, stripe_customer_id: stripeCustomerId, updated_at: new Date().toISOString() }, {
+      onConflict: "user_id",
+    });
+  if (error) throw new Error(error.message);
+}
+
+export interface SubscriptionUpdate {
+  stripeSubscriptionId: string | null;
+  status: string | null;
+  priceId: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  trialEnd: string | null;
+}
+
+// Idempotent by construction: Stripe retries and redelivers events, so this
+// writes absolute state from the event rather than incrementing anything.
+export async function upsertSubscriptionState(
+  userId: string,
+  stripeCustomerId: string,
+  update: SubscriptionUpdate,
+): Promise<void> {
+  const client = getServiceClient();
+  const { error } = await client.from("subscriptions").upsert(
+    {
+      user_id: userId,
+      stripe_customer_id: stripeCustomerId,
+      stripe_subscription_id: update.stripeSubscriptionId,
+      status: update.status,
+      price_id: update.priceId,
+      current_period_end: update.currentPeriodEnd,
+      cancel_at_period_end: update.cancelAtPeriodEnd,
+      trial_end: update.trialEnd,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw new Error(error.message);
+}

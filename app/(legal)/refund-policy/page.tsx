@@ -8,8 +8,10 @@ export default function RefundPolicyPage() {
 
       <h2>1. Free Trial</h2>
       <p>
-        New subscriptions include a 3-day free trial at $0.00 USD. You will not be charged during the trial.
-        You may cancel at any time during the trial to avoid being charged.
+        New subscriptions include a 14-day free trial at $0.00 USD. You will not be charged during the
+        trial. Payment details are collected when the trial starts so that the subscription can begin
+        automatically at the end of it — you may cancel at any time during the trial to avoid being
+        charged.
       </p>
 
       <h2>2. Billing After the Trial</h2>

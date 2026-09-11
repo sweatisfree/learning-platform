@@ -20,8 +20,8 @@ export function Pricing() {
               honest pricing
             </h2>
             <p className="mt-6 max-w-sm text-lg leading-relaxed text-landing-ink-muted">
-              One plan, everything included. Start free — we don&apos;t ask for a card to see whether this
-              works for you.
+              One plan, everything included. Fourteen days free — long enough to actually build a
+              baseline and see a readiness score, rather than just the setup screens.
             </p>
             <ul className="mt-8 space-y-3">
               {INCLUDED.map((item) => (
@@ -36,7 +36,7 @@ export function Pricing() {
           </div>
 
           <div className="relative flex flex-col justify-center overflow-hidden rounded-[var(--radius-bento)] bg-landing-ink p-10 text-center sm:p-12">
-            <p className="text-sm uppercase tracking-wider text-white/50">3-day free trial</p>
+            <p className="text-sm uppercase tracking-wider text-white/50">14-day free trial</p>
             <p className="mt-4 font-heading text-7xl font-semibold tracking-[-0.03em] text-white">$0</p>
             <p className="mt-3 text-white/60">then $4.99/month · cancel anytime</p>
 
@@ -44,7 +44,7 @@ export function Pricing() {
               href="/login"
               className="mt-10 rounded-full bg-white px-8 py-4 font-semibold text-landing-ink transition-opacity hover:opacity-90"
             >
-              Start Free — No Card Required
+              Start Your Free Trial
             </Link>
 
             <p className="mt-6 text-xs leading-relaxed text-white/45">

@@ -32,7 +32,7 @@ export function Hero() {
             href="/login"
             className="rounded-full bg-white px-8 py-4 text-center font-semibold text-[var(--landing-ink)] transition-opacity hover:opacity-90"
           >
-            Start Free — No Card Required
+            Start Your Free Trial
           </Link>
           <Link
             href="/transparency"
@@ -43,7 +43,7 @@ export function Hero() {
         </div>
 
         <p className="mt-5 text-sm text-white/60">
-          3-day free trial · cancel anytime · no credit card to start
+          14 days free · cancel anytime before it ends · $4.99/month after
         </p>
       </div>
     </section>

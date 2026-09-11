@@ -48,7 +48,10 @@ export default function TermsPage() {
       <h2>4. Subscriptions and Billing</h2>
       <p>The Service is offered on the following subscription terms, which may change as described below:</p>
       <ul>
-        <li>New accounts receive a 3-day free trial at $0.00 USD.</li>
+        <li>
+          New accounts receive a 14-day free trial at $0.00 USD. Payment details are collected when the
+          trial begins, so that billing can start automatically when it ends.
+        </li>
         <li>
           Unless cancelled before the trial ends, your subscription automatically begins at $4.99 USD per
           month, billed on a recurring monthly cycle.

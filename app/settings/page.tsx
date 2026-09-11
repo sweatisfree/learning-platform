@@ -12,6 +12,8 @@ import { ManualHealthReadingForm } from "@/components/health/ManualHealthReading
 import { AthleteProfileForm } from "@/components/health/AthleteProfileForm";
 import { fetchAthleteProfile } from "@/lib/health/athleteProfile";
 import { fetchAutonomicReadings } from "@/lib/health/readings";
+import { SubscriptionPanel } from "@/components/billing/SubscriptionPanel";
+import { fetchSubscription, type Subscription } from "@/lib/stripe/subscription";
 import type { AthleteProfileFields } from "@/lib/types/user-profile";
 import {
   computeAutonomicBaseline,
@@ -51,6 +53,19 @@ async function loadProfile(userId: string): Promise<ProfileResult> {
 
 const loadReadings = fetchAutonomicReadings;
 
+interface SubscriptionResult {
+  subscription: Subscription | null;
+  error: string | null;
+}
+
+async function loadSubscription(): Promise<SubscriptionResult> {
+  try {
+    return { subscription: await fetchSubscription(), error: null };
+  } catch (error) {
+    return { subscription: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
 export default function SettingsPage() {
   const { session, isLoading } = useSupabaseAuth();
   const userId = session?.user.id ?? null;
@@ -69,10 +84,18 @@ export default function SettingsPage() {
   // AthleteProfileForm seeds its inputs on mount, so it must not mount until
   // the real values are available or it renders permanently empty.
   const [isProfileLoaded, setIsProfileLoaded] = useState(false);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+  const [isSubscriptionLoaded, setIsSubscriptionLoaded] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
     loadTokenStatus().then(setTokenStatus);
+    loadSubscription().then((result) => {
+      setSubscription(result.subscription);
+      setSubscriptionError(result.error);
+      setIsSubscriptionLoaded(true);
+    });
     loadReadings().then((result) => {
       setReadings(result.readings);
       setReadingsError(result.error);
@@ -174,6 +197,12 @@ export default function SettingsPage() {
         )}
         {connectError && <p className="mt-3 text-sm text-warning">{connectError}</p>}
         {stravaStatusError && <p className="mt-3 text-sm text-warning">{stravaStatusError}</p>}
+      </Panel>
+
+      <Panel as="section" className="mt-4">
+        <SectionHeading className="mb-1">Subscription</SectionHeading>
+        <SubscriptionPanel subscription={subscription} isLoaded={isSubscriptionLoaded} />
+        {subscriptionError && <p className="mt-3 text-sm text-warning">{subscriptionError}</p>}
       </Panel>
 
       <Panel as="section" className="mt-4">

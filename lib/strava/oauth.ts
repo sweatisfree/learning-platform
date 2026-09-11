@@ -1,5 +1,5 @@
 import { env } from "@/lib/config/env";
-import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorizedFetch";
 import type { Activity } from "@/lib/types/activity";
 import type { StravaConnection } from "./types";
 
@@ -22,18 +22,6 @@ export function buildStravaAuthorizeUrl(): string {
 // Standard web OAuth: full-page redirect to Strava's consent screen.
 export function startStravaAuthorization(): void {
   window.location.href = buildStravaAuthorizeUrl();
-}
-
-async function authorizedFetch(path: string, init?: RequestInit): Promise<Response> {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const accessToken = sessionData.session?.access_token;
-  if (!accessToken) {
-    throw new Error("You must be signed in to use Strava.");
-  }
-  return fetch(path, {
-    ...init,
-    headers: { ...init?.headers, Authorization: `Bearer ${accessToken}` },
-  });
 }
 
 // Calls our own /api/strava/exchange route, which holds the client_secret
