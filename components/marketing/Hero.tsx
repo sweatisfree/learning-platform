@@ -29,7 +29,7 @@ export function Hero() {
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/login"
+            href="/login?next=checkout"
             className="rounded-full bg-white px-8 py-4 text-center font-semibold text-[var(--landing-ink)] transition-opacity hover:opacity-90"
           >
             Start Your Free Trial

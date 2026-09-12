@@ -106,7 +106,7 @@ export function Bento() {
             yourself instead of taking it on faith.
           </p>
           <Link
-            href="/login"
+            href="/login?next=checkout"
             className="mt-9 w-fit rounded-full bg-landing-ink px-7 py-3.5 font-semibold text-white transition-opacity hover:opacity-90"
           >
             Start free

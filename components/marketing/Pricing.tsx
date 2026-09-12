@@ -41,7 +41,7 @@ export function Pricing() {
             <p className="mt-3 text-white/60">then $4.99/month · cancel anytime</p>
 
             <Link
-              href="/login"
+              href="/login?next=checkout"
               className="mt-10 rounded-full bg-white px-8 py-4 font-semibold text-landing-ink transition-opacity hover:opacity-90"
             >
               Start Your Free Trial
