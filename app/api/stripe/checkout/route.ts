@@ -52,6 +52,12 @@ export async function POST(request: NextRequest) {
       // the Stripe-hosted page. Without this, promo codes exist but are
       // unenterable.
       allow_promotion_codes: true,
+      // Stripe Managed Payments gets switched on automatically during merchant
+      // onboarding. It requires a tax_code on every product and bills an
+      // add-on fee, and without the tax code it rejects session creation
+      // outright. We don't want either, so it's disabled per-session — the
+      // documented alternative is adding tax_code to every line item.
+      managed_payments: { enabled: false },
       client_reference_id: user.id,
       metadata: { userId: user.id },
       success_url: `${origin}/settings?checkout=success`,
