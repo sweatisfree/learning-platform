@@ -52,18 +52,27 @@ export async function POST(request: NextRequest) {
 
     const origin = request.headers.get("origin") ?? new URL(request.url).origin;
 
-    // Resolve a supplied code to its promotion_code id. Stripe's discounts
-    // parameter takes the id, not the human-facing string.
-    let promotionCodeId: string | null = null;
+    // Resolve the submitted code to the COUPON it points at, and apply that
+    // rather than the promotion code itself. Stripe's order summary shows an
+    // applied promotion code verbatim, which would print the redeemable string
+    // on the checkout page for anyone to reuse. Applying the coupon shows only
+    // the coupon's display name, so the code never leaves our server.
+    let couponId: string | null = null;
     if (requestedPromotionCode) {
       const matches = await stripe.promotionCodes.list({
         code: requestedPromotionCode,
         active: true,
         limit: 1,
       });
-      promotionCodeId = matches.data[0]?.id ?? null;
-      if (!promotionCodeId) {
-        return NextResponse.json({ error: "That promotion code isn't valid." }, { status: 400 });
+      // A promotion code points at a `promotion`, whose `coupon` is either an
+      // id string or an expanded object depending on API version.
+      const promotion = matches.data[0]?.promotion as
+        | { coupon?: string | { id?: string } }
+        | undefined;
+      const coupon = promotion?.coupon;
+      couponId = typeof coupon === "string" ? coupon : coupon?.id ?? null;
+      if (!couponId) {
+        return NextResponse.json({ error: "That code isn't valid." }, { status: 400 });
       }
     }
 
@@ -78,26 +87,26 @@ export async function POST(request: NextRequest) {
         // nothing to charge when the trial ends, so Stripe requires us to say
         // what happens. Cancelling is the honest outcome — a subscription that
         // was never paid for shouldn't silently persist.
-        ...(promotionCodeId
+        ...(couponId
           ? { trial_settings: { end_behavior: { missing_payment_method: "cancel" as const } } }
           : {}),
       },
-      // Two mutually exclusive paths, because Stripe rejects `discounts` and
-      // `allow_promotion_codes` together:
+      // allow_promotion_codes is deliberately NOT set. Enabling it renders a
+      // promotion-code field on Stripe's public checkout page, which advertises
+      // that codes exist and invites guessing at a 100%-off one. Codes are
+      // accepted only server-side, from an authenticated request.
       //
-      // - With a code: pre-apply it, which makes the total $0, and pair that
-      //   with if_required so no card is collected. This is the only way to
-      //   skip the card for discounted checkouts *without* skipping it for
-      //   everyone — payment_method_collection isn't coupon-aware, and a
-      //   14-day trial already makes the amount due $0 for every customer.
-      // - Without a code: collect the card so the trial auto-converts, which
-      //   is what the Terms and the pricing page both promise.
-      ...(promotionCodeId
+      // With a code: apply the coupon so the total is $0, paired with
+      // if_required so no card is collected. payment_method_collection isn't
+      // coupon-aware and a 14-day trial already makes the amount due $0 for
+      // everyone, so this is the only way to skip the card for discounted
+      // checkouts without skipping it for real subscribers too.
+      ...(couponId
         ? {
-            discounts: [{ promotion_code: promotionCodeId }],
+            discounts: [{ coupon: couponId }],
             payment_method_collection: "if_required" as const,
           }
-        : { allow_promotion_codes: true }),
+        : {}),
       // Stripe Managed Payments gets switched on automatically during merchant
       // onboarding. It requires a tax_code on every product and bills an
       // add-on fee, and without the tax code it rejects session creation
