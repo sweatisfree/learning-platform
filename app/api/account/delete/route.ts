@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyRequestUser } from "@/lib/supabase/verifyRequestUser";
 import { getStripe } from "@/lib/stripe/client";
 import { serverEnv } from "@/lib/config/server-env";
+import { deauthorizeStrava } from "@/lib/strava/deauthorize";
 import {
   deleteAuthUser,
   getStravaConnection,
   getSubscriptionByUserId,
 } from "@/lib/supabase/service-role";
-
-const STRAVA_DEAUTHORIZE_URL = "https://www.strava.com/oauth/deauthorize";
 
 // Irreversible account deletion, per GDPR Art. 17.
 //
@@ -65,21 +64,15 @@ export async function POST(request: NextRequest) {
 
   // --- Step 2: revoke Strava. Best-effort: a third-party outage must not
   // block someone's erasure right, and our copy of the token dies in step 3
-  // regardless.
+  // regardless. Shared with the disconnect route so the two cannot drift.
   try {
     const strava = await getStravaConnection(user.id);
     if (strava?.accessToken) {
-      const response = await fetch(STRAVA_DEAUTHORIZE_URL, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${strava.accessToken}` },
-      });
-      if (!response.ok) {
-        console.error("Account deletion: Strava deauthorize returned", response.status);
-      }
+      await deauthorizeStrava(strava.accessToken);
     }
   } catch (error) {
     console.error(
-      "Account deletion: Strava deauthorize failed, continuing",
+      "Account deletion: could not read Strava connection, continuing",
       error instanceof Error ? error.message : error,
     );
   }

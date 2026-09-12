@@ -113,8 +113,14 @@ export default function PrivacyPage() {
         Deletion is immediate and irreversible: it erases your profile, your health readings and your
         Strava connection, cancels any subscription, and revokes our access to your Strava account.
         Access tokens are excluded from the export because they are credentials rather than your
-        personal data. For anything else — correction, restriction, or objection — email
-        sweatisfree@gmail.com.
+        personal data.
+      </p>
+      <p>
+        You do not have to delete your whole account to remove data. Individual health readings can be
+        deleted one at a time under Settings → Stored readings, and you can disconnect Strava — which
+        revokes our access on Strava&apos;s side — without affecting your account or your health
+        readings. For anything else, including correction of account details, restriction, or
+        objection, email sweatisfree@gmail.com.
       </p>
       <p>
         If you are in the EU/EEA or UK, you also have the right to lodge a complaint with your local data

@@ -56,6 +56,16 @@ export async function fetchStravaStatus(): Promise<StravaStatus> {
   return (await response.json()) as StravaStatus;
 }
 
+// Drops the integration only. Health readings and the account are untouched —
+// see app/api/strava/disconnect/route.ts.
+export async function disconnectStrava(): Promise<void> {
+  const response = await authorizedFetch("/api/strava/disconnect", { method: "POST" });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `Failed to disconnect Strava: ${response.status}`);
+  }
+}
+
 // Returns [] if Strava isn't connected (404), rather than throwing — that's
 // an expected, common state, not an error condition for callers to handle.
 export async function fetchStravaActivitiesFromApi(): Promise<Activity[]> {

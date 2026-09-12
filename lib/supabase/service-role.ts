@@ -345,3 +345,13 @@ export async function deleteAuthUser(userId: string): Promise<void> {
   const { error } = await client.auth.admin.deleteUser(userId);
   if (error) throw new Error(error.message);
 }
+
+// Drops just the Strava connection, leaving the account and all health data
+// intact. Needs service-role because strava_connections has RLS enabled with
+// zero policies — raw OAuth tokens are unreachable from the browser by
+// design, including by their owner, so there is no client-side path.
+export async function deleteStravaConnection(userId: string): Promise<void> {
+  const client = getServiceClient();
+  const { error } = await client.from("strava_connections").delete().eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}

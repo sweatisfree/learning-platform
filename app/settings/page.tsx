@@ -5,13 +5,23 @@ import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { PageHeading, SectionHeading } from "@/components/ui/Heading";
-import { startStravaAuthorization, fetchStravaStatus, type StravaStatus } from "@/lib/strava/oauth";
+import {
+  startStravaAuthorization,
+  fetchStravaStatus,
+  disconnectStrava,
+  type StravaStatus,
+} from "@/lib/strava/oauth";
 import { supabase } from "@/lib/supabase/client";
 import { sha256Hex } from "@/lib/utils/sha256";
 import { ManualHealthReadingForm } from "@/components/health/ManualHealthReadingForm";
+import { HealthReadingsList } from "@/components/health/HealthReadingsList";
 import { AthleteProfileForm } from "@/components/health/AthleteProfileForm";
 import { fetchAthleteProfile } from "@/lib/health/athleteProfile";
-import { fetchAutonomicReadings } from "@/lib/health/readings";
+import {
+  fetchStoredHealthReadings,
+  toAutonomicReadings,
+  type StoredHealthReading,
+} from "@/lib/health/readings";
 import { SubscriptionPanel } from "@/components/billing/SubscriptionPanel";
 import { AccountDataPanel } from "@/components/account/AccountDataPanel";
 import { fetchSubscription, type Subscription } from "@/lib/stripe/subscription";
@@ -19,7 +29,6 @@ import type { AthleteProfileFields } from "@/lib/types/user-profile";
 import {
   computeAutonomicBaseline,
   computeAutonomicRecoveryIndex,
-  type AutonomicReading,
   type AutonomicRecoveryIndex,
 } from "@/lib/engine/loadCalculator";
 
@@ -52,7 +61,7 @@ async function loadProfile(userId: string): Promise<ProfileResult> {
   }
 }
 
-const loadReadings = fetchAutonomicReadings;
+const loadReadings = fetchStoredHealthReadings;
 
 interface SubscriptionResult {
   subscription: Subscription | null;
@@ -74,10 +83,13 @@ export default function SettingsPage() {
   const [connectError, setConnectError] = useState<string | null>(null);
   const [stravaStatus, setStravaStatus] = useState<StravaStatus | null>(null);
   const [stravaStatusError, setStravaStatusError] = useState<string | null>(null);
+  const [isConfirmingDisconnect, setIsConfirmingDisconnect] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [disconnectError, setDisconnectError] = useState<string | null>(null);
   const [tokenStatus, setTokenStatus] = useState<TokenStatus>("loading");
   const [generatedToken, setGeneratedToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<string | null>(null);
-  const [readings, setReadings] = useState<AutonomicReading[]>([]);
+  const [readings, setReadings] = useState<StoredHealthReading[]>([]);
   const [readingsError, setReadingsError] = useState<string | null>(null);
   const [profile, setProfile] = useState<AthleteProfileFields | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -151,6 +163,20 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleDisconnectStrava() {
+    setDisconnectError(null);
+    setIsDisconnecting(true);
+    try {
+      await disconnectStrava();
+      setStravaStatus({ connected: false });
+      setIsConfirmingDisconnect(false);
+    } catch (error) {
+      setDisconnectError(error instanceof Error ? error.message : "Could not disconnect Strava.");
+    } finally {
+      setIsDisconnecting(false);
+    }
+  }
+
   if (isLoading) return null;
 
   if (!session) {
@@ -162,11 +188,17 @@ export default function SettingsPage() {
     );
   }
 
+  // `readings` is now the unfiltered stored rows, so that signal-less rows are
+  // still visible and deletable in the list. The engine must only ever see the
+  // filtered subset, or a blank row would suppress a real score.
+  const engineReadings = toAutonomicReadings(readings);
   const recoveryIndex =
-    readings.length > 0
+    engineReadings.length > 0
       ? computeAutonomicRecoveryIndex(
-          readings[readings.length - 1],
-          computeAutonomicBaseline(readings.length > 1 ? readings.slice(0, -1) : readings),
+          engineReadings[engineReadings.length - 1],
+          computeAutonomicBaseline(
+            engineReadings.length > 1 ? engineReadings.slice(0, -1) : engineReadings,
+          ),
         )
       : null;
 
@@ -184,9 +216,44 @@ export default function SettingsPage() {
             <p className="mb-4 text-sm text-muted">
               Connected to Strava as {stravaStatus.athleteFirstname} {stravaStatus.athleteLastname}.
             </p>
-            <Button variant="ghost" onClick={handleConnectStrava}>
-              Reconnect Strava
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="ghost" onClick={handleConnectStrava}>
+                Reconnect Strava
+              </Button>
+              {isConfirmingDisconnect ? (
+                <>
+                  <Button
+                    className="bg-danger hover:bg-danger/90"
+                    onClick={handleDisconnectStrava}
+                    disabled={isDisconnecting}
+                  >
+                    {isDisconnecting ? "Disconnecting…" : "Confirm disconnect"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsConfirmingDisconnect(false)}
+                    disabled={isDisconnecting}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="border-danger text-danger hover:bg-danger/10"
+                  onClick={() => setIsConfirmingDisconnect(true)}
+                >
+                  Disconnect
+                </Button>
+              )}
+            </div>
+            {isConfirmingDisconnect && (
+              <p className="mt-3 text-sm text-muted">
+                This revokes our access on Strava&apos;s side, so reconnecting means authorising again.
+                Your account and your health readings are not affected.
+              </p>
+            )}
+            {disconnectError && <p className="mt-3 text-sm text-warning">{disconnectError}</p>}
           </>
         ) : (
           <>
@@ -289,6 +356,11 @@ export default function SettingsPage() {
         {readingsError && <p className="mt-3 text-sm text-warning">{readingsError}</p>}
       </Panel>
 
+      <Panel as="section" className="mt-4">
+        <SectionHeading className="mb-1">Stored readings</SectionHeading>
+        <HealthReadingsList readings={readings} onDeleted={refreshReadings} />
+      </Panel>
+
       {recoveryIndex && (
         <Panel as="section" className="mt-4">
           <SectionHeading className="mb-1">Latest Autonomic Recovery Index</SectionHeading>
@@ -297,7 +369,7 @@ export default function SettingsPage() {
               <p className="font-heading text-2xl font-bold text-muted">Not scored yet</p>
               <p className="mt-1 text-xs text-muted">
                 A signal needs {recoveryIndex.coverage.minReadingsPerMetric} readings before its
-                baseline is worth scoring against — you have {readings.length}. Deviations measured
+                baseline is worth scoring against — you have {engineReadings.length}. Deviations measured
                 against a thinner baseline are noise, not signal.
               </p>
             </>
@@ -310,7 +382,7 @@ export default function SettingsPage() {
               </p>
               <p className="mt-1 text-xs text-muted">
                 Computed from {recoveryIndex.coverage.signalsUsed} of 4 signals, across{" "}
-                {readings.length} stored reading(s).
+                {engineReadings.length} usable reading(s).
                 {recoveryIndex.coverage.signalsShortOfBaseline > 0 &&
                   ` ${recoveryIndex.coverage.signalsShortOfBaseline} more had data today but too thin a baseline to use.`}
               </p>
