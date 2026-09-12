@@ -28,8 +28,13 @@ export async function fetchSubscription(): Promise<Subscription | null> {
   };
 }
 
-async function redirectToStripe(path: string): Promise<void> {
-  const response = await authorizedFetch(path, { method: "POST" });
+async function redirectToStripe(path: string, payload?: unknown): Promise<void> {
+  const response = await authorizedFetch(path, {
+    method: "POST",
+    ...(payload === undefined
+      ? {}
+      : { headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }),
+  });
   const body = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
   if (!response.ok || !body.url) {
     throw new Error(body.error ?? `Request failed: ${response.status}`);
@@ -37,8 +42,12 @@ async function redirectToStripe(path: string): Promise<void> {
   window.location.href = body.url;
 }
 
-export async function startCheckout(): Promise<void> {
-  await redirectToStripe("/api/stripe/checkout");
+// An optional promotion code is pre-applied server-side, which also skips
+// card collection for that session. Without one, the card is collected so the
+// trial can auto-convert.
+export async function startCheckout(promotionCode?: string): Promise<void> {
+  const trimmed = promotionCode?.trim();
+  await redirectToStripe("/api/stripe/checkout", trimmed ? { promotionCode: trimmed } : undefined);
 }
 
 export async function openBillingPortal(): Promise<void> {

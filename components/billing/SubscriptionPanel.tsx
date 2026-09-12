@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import {
   describeSubscription,
   openBillingPortal,
@@ -24,6 +25,7 @@ export function SubscriptionPanel({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  const [promotionCode, setPromotionCode] = useState("");
 
   async function run(action: () => Promise<void>) {
     setError(null);
@@ -48,9 +50,35 @@ export function SubscriptionPanel({
           14 days free, then $4.99/month. We take card details up front so the subscription can start
           automatically when the trial ends — cancel any time before then and you won&apos;t be charged.
         </p>
-        <Button onClick={() => run(startCheckout)} disabled={isBusy}>
+        <Button onClick={() => run(() => startCheckout())} disabled={isBusy}>
           {isBusy ? "Opening…" : "Start free trial"}
         </Button>
+
+        <div className="mt-5 border-t border-border pt-4">
+          <label className="block">
+            <span className="mb-1 block text-sm text-muted">Have a code?</span>
+            <Input
+              value={promotionCode}
+              onChange={(event) => setPromotionCode(event.target.value)}
+              placeholder="Promotion code"
+              autoComplete="off"
+            />
+          </label>
+          <p className="mt-2 text-xs text-muted">
+            A code is applied before checkout opens. If it covers the full amount, no card is
+            requested — so a fully-discounted subscription has nothing to charge when the trial ends
+            and will simply stop rather than convert.
+          </p>
+          <Button
+            variant="ghost"
+            className="mt-3"
+            onClick={() => run(() => startCheckout(promotionCode))}
+            disabled={isBusy || promotionCode.trim() === ""}
+          >
+            {isBusy ? "Opening…" : "Apply code and continue"}
+          </Button>
+        </div>
+
         {error && <p className="mt-3 text-sm text-warning">{error}</p>}
       </>
     );

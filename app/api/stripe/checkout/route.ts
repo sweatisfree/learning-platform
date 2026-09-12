@@ -13,6 +13,18 @@ export async function POST(request: NextRequest) {
   if ("errorResponse" in authResult) return authResult.errorResponse;
   const { user } = authResult;
 
+  // Optional. When a code is supplied we pre-apply it server-side, which makes
+  // the total $0 and lets us skip card collection for that session only.
+  let requestedPromotionCode: string | null = null;
+  try {
+    const body = (await request.json()) as { promotionCode?: unknown };
+    if (typeof body.promotionCode === "string" && body.promotionCode.trim() !== "") {
+      requestedPromotionCode = body.promotionCode.trim();
+    }
+  } catch {
+    // No body, or not JSON — the normal card-collecting path.
+  }
+
   let stripe;
   let priceId;
   try {
@@ -40,6 +52,21 @@ export async function POST(request: NextRequest) {
 
     const origin = request.headers.get("origin") ?? new URL(request.url).origin;
 
+    // Resolve a supplied code to its promotion_code id. Stripe's discounts
+    // parameter takes the id, not the human-facing string.
+    let promotionCodeId: string | null = null;
+    if (requestedPromotionCode) {
+      const matches = await stripe.promotionCodes.list({
+        code: requestedPromotionCode,
+        active: true,
+        limit: 1,
+      });
+      promotionCodeId = matches.data[0]?.id ?? null;
+      if (!promotionCodeId) {
+        return NextResponse.json({ error: "That promotion code isn't valid." }, { status: 400 });
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
@@ -47,11 +74,30 @@ export async function POST(request: NextRequest) {
       subscription_data: {
         trial_period_days: TRIAL_PERIOD_DAYS,
         metadata: { userId: user.id },
+        // Only relevant on the no-card path: with nothing on file there is
+        // nothing to charge when the trial ends, so Stripe requires us to say
+        // what happens. Cancelling is the honest outcome — a subscription that
+        // was never paid for shouldn't silently persist.
+        ...(promotionCodeId
+          ? { trial_settings: { end_behavior: { missing_payment_method: "cancel" as const } } }
+          : {}),
       },
-      // Lets a customer enter a promotion code (e.g. a 100%-off test code) on
-      // the Stripe-hosted page. Without this, promo codes exist but are
-      // unenterable.
-      allow_promotion_codes: true,
+      // Two mutually exclusive paths, because Stripe rejects `discounts` and
+      // `allow_promotion_codes` together:
+      //
+      // - With a code: pre-apply it, which makes the total $0, and pair that
+      //   with if_required so no card is collected. This is the only way to
+      //   skip the card for discounted checkouts *without* skipping it for
+      //   everyone — payment_method_collection isn't coupon-aware, and a
+      //   14-day trial already makes the amount due $0 for every customer.
+      // - Without a code: collect the card so the trial auto-converts, which
+      //   is what the Terms and the pricing page both promise.
+      ...(promotionCodeId
+        ? {
+            discounts: [{ promotion_code: promotionCodeId }],
+            payment_method_collection: "if_required" as const,
+          }
+        : { allow_promotion_codes: true }),
       // Stripe Managed Payments gets switched on automatically during merchant
       // onboarding. It requires a tax_code on every product and bills an
       // add-on fee, and without the tax code it rejects session creation
