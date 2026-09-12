@@ -47,37 +47,37 @@ export function SubscriptionPanel({
     return (
       <>
         <p className="mb-4 text-sm text-muted">
-          14 days free, then $4.99/month. We take card details up front so the subscription can start
+          14 days free, then $4.99/month. Card details are taken up front so the subscription starts
           automatically when the trial ends — cancel any time before then and you won&apos;t be charged.
         </p>
-        <Button onClick={() => run(() => startCheckout())} disabled={isBusy}>
+
+        {/* One button, not two. Previously a separate "apply code" button sat
+            below the main one, and the obvious button was the wrong one for
+            anyone holding a code — they'd land on Stripe with no way to enter
+            it, because we don't expose Stripe's own promo field. The code is
+            now simply part of this form: filled means apply it, empty means
+            the normal card-collecting path. */}
+        <label className="mb-4 block">
+          <span className="mb-1 block text-sm text-muted">Code (optional)</span>
+          <Input
+            value={promotionCode}
+            onChange={(event) => setPromotionCode(event.target.value)}
+            placeholder="Enter a code, or leave blank"
+            autoComplete="off"
+          />
+        </label>
+
+        <Button onClick={() => run(() => startCheckout(promotionCode))} disabled={isBusy}>
           {isBusy ? "Opening…" : "Start free trial"}
         </Button>
 
-        <div className="mt-5 border-t border-border pt-4">
-          <label className="block">
-            <span className="mb-1 block text-sm text-muted">Have a code?</span>
-            <Input
-              value={promotionCode}
-              onChange={(event) => setPromotionCode(event.target.value)}
-              placeholder="Promotion code"
-              autoComplete="off"
-            />
-          </label>
-          <p className="mt-2 text-xs text-muted">
-            A code is applied before checkout opens. If it covers the full amount, no card is
-            requested — so a fully-discounted subscription has nothing to charge when the trial ends
-            and will simply stop rather than convert.
+        {promotionCode.trim() !== "" && (
+          <p className="mt-3 text-xs text-muted">
+            The code is applied before checkout opens. If it covers the full amount you won&apos;t be
+            asked for a card — and with nothing on file, the subscription stops at the end of the
+            trial instead of converting.
           </p>
-          <Button
-            variant="ghost"
-            className="mt-3"
-            onClick={() => run(() => startCheckout(promotionCode))}
-            disabled={isBusy || promotionCode.trim() === ""}
-          >
-            {isBusy ? "Opening…" : "Apply code and continue"}
-          </Button>
-        </div>
+        )}
 
         {error && <p className="mt-3 text-sm text-warning">{error}</p>}
       </>
