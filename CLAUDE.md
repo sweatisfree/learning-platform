@@ -17,6 +17,13 @@ All biometric and Strava data stored in Supabase is encrypted at rest, isolated 
 - No service-role key or RLS bypass in client-reachable code paths. Service-role access, if ever needed, stays server-side and scoped to a specific job, not general reads.
 - No third-party analytics, tracking, or ad SDKs that transmit user data off our infrastructure.
 - No selling or sharing user data with third parties, in any form (aggregated, anonymized, or raw).
+- Athlete-scoped RLS goes through `public.app_can_access_athlete(user_id)` (see `supabase/migrations/0006_athlete_access_function.sql`), not an inlined `auth.uid() = user_id`. One auditable place to answer "who may read this person's biometric data" — widen it there, never in individual policies. Two deliberate exceptions: `subscriptions` is scoped to the paying **account** rather than the athlete, and `strava_connections` has RLS enabled with zero policies so raw OAuth tokens stay unreadable even by their owner.
+- Every table holding user data MUST declare `user_id ... references auth.users(id) on delete cascade`. Account deletion (`app/api/account/delete/route.ts`) relies on that cascade rather than a hand-written per-table delete; drop it on a new table and erasure silently becomes incomplete.
+
+## Account vs. athlete
+`user_id` currently means two things at once: the account that signs in and pays, and the athlete the data describes. That conflation is fine while they are always the same person, and is deliberately **not** abstracted away — a rename would touch ~85 references across the app for a feature that may never exist.
+
+If parent-managed accounts ever come into scope, the split is `account_id` (signs in, pays, consents) vs `athlete_id` (whom the data describes), with a `relationship` value of `self | parent | guardian | coach` so the ordinary case is a value rather than a second code path. Health data keys on the athlete; `subscriptions` keys on the account. Verifiable parental consent would need to be a record (method, timestamp, policy version), not a boolean.
 
 ## Commands
 - Build: `npm run build`
