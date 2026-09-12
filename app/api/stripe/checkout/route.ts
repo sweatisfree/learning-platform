@@ -63,7 +63,46 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.error("Stripe checkout failed", error instanceof Error ? error.message : error);
-    return NextResponse.json({ error: "Could not start checkout" }, { status: 500 });
+    // Surface the real Stripe failure rather than a generic string. "Could not
+    // start checkout" told us nothing about whether the price was missing, the
+    // key was from the wrong account, or the customer create failed.
+    //
+    // Stripe's error messages are developer-facing and contain no credentials,
+    // and this route already requires a verified session, so returning the
+    // detail exposes nothing the caller could not see in their own dashboard.
+    const detail = describeStripeError(error);
+    console.error("Stripe checkout failed", detail);
+    return NextResponse.json({ error: `Could not start checkout: ${detail.message}`, detail }, { status: 500 });
   }
+}
+
+interface StripeErrorDetail {
+  message: string;
+  type?: string;
+  code?: string;
+  statusCode?: number;
+  param?: string;
+  requestId?: string;
+}
+
+function describeStripeError(error: unknown): StripeErrorDetail {
+  if (typeof error !== "object" || error === null) {
+    return { message: String(error) };
+  }
+  const candidate = error as {
+    message?: unknown;
+    type?: unknown;
+    code?: unknown;
+    statusCode?: unknown;
+    param?: unknown;
+    requestId?: unknown;
+  };
+  return {
+    message: typeof candidate.message === "string" ? candidate.message : "Unknown error",
+    type: typeof candidate.type === "string" ? candidate.type : undefined,
+    code: typeof candidate.code === "string" ? candidate.code : undefined,
+    statusCode: typeof candidate.statusCode === "number" ? candidate.statusCode : undefined,
+    param: typeof candidate.param === "string" ? candidate.param : undefined,
+    requestId: typeof candidate.requestId === "string" ? candidate.requestId : undefined,
+  };
 }
