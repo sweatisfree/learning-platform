@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
         trial_period_days: TRIAL_PERIOD_DAYS,
         metadata: { userId: user.id },
       },
+      // Lets a customer enter a promotion code (e.g. a 100%-off test code) on
+      // the Stripe-hosted page. Without this, promo codes exist but are
+      // unenterable.
+      allow_promotion_codes: true,
       client_reference_id: user.id,
       metadata: { userId: user.id },
       success_url: `${origin}/settings?checkout=success`,

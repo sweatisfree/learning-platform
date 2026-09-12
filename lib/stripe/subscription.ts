@@ -71,3 +71,22 @@ export function describeSubscription(subscription: Subscription): string {
       return subscription.status ?? "No subscription";
   }
 }
+
+// The single definition of "may use the paid app".
+//
+// Gated on Stripe's own status rather than anything we compute, because the
+// webhook writes whatever Stripe reports and the subscriptions table has no
+// write policy at all — so access can only ever be granted by a
+// signature-verified Stripe event, never by the browser.
+//
+// "trialing" counts: a trial user has full access for the 14 days.
+// "past_due" and "unpaid" do not, so a failed payment removes access.
+// "canceled" does not, but note Stripe keeps a cancelled-at-period-end
+// subscription as "active" until the period actually elapses — which is
+// exactly what the Terms promise ("you retain access until the end of the
+// billing period already paid for").
+const ACCESS_STATUSES = new Set(["active", "trialing"]);
+
+export function hasActiveAccess(subscription: Subscription | null): boolean {
+  return subscription?.status != null && ACCESS_STATUSES.has(subscription.status);
+}

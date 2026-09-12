@@ -13,6 +13,7 @@ import {
 import { computeRecoveryScore, type RecoveryScore } from "@/lib/engine/recovery-score";
 import { fetchAthleteProfile, toActivityLoadOptions } from "@/lib/health/athleteProfile";
 import { fetchAutonomicReadings } from "@/lib/health/readings";
+import { fetchSubscription, hasActiveAccess, type Subscription } from "@/lib/stripe/subscription";
 import { Panel } from "@/components/ui/Panel";
 import { PageHeading } from "@/components/ui/Heading";
 import { Stat } from "@/components/ui/Stat";
@@ -27,6 +28,7 @@ interface DashboardData {
   acwr: AcuteChronicLoad | null;
   profile: AthleteProfileFields | null;
   readiness: RecoveryScore | null;
+  subscription: Subscription | null;
 }
 
 // Plain fetcher, no setState inside — matches the pattern established in
@@ -39,10 +41,11 @@ async function loadDashboardData(
     // The profile is optional context, not a prerequisite — if that table is
     // missing or unreadable, load still computes (via the duration fallback)
     // rather than the whole dashboard collapsing into an error message.
-    const [status, profile, readingsResult] = await Promise.all([
+    const [status, profile, readingsResult, subscription] = await Promise.all([
       fetchStravaStatus(),
       fetchAthleteProfile(userId).catch(() => null),
       fetchAutonomicReadings(),
+      fetchSubscription().catch(() => null),
     ]);
 
     const activities = status.connected ? await fetchStravaActivitiesFromApi() : [];
@@ -61,7 +64,7 @@ async function loadDashboardData(
 
     const readiness = computeRecoveryScore({ autonomic, load: acwr });
 
-    return { data: { status, activities, acwr, profile, readiness }, error: null };
+    return { data: { status, activities, acwr, profile, readiness, subscription }, error: null };
   } catch (error) {
     return { data: null, error: error instanceof Error ? error.message : "Failed to load dashboard data." };
   }
@@ -183,20 +186,44 @@ export default function DashboardPage() {
     );
   }
 
+  // Single source of truth for the gate, so no paid panel can render without it.
+  const hasAccess = data != null && hasActiveAccess(data.subscription);
+
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6">
       <PageHeading>Dashboard</PageHeading>
 
       {isLoadingData && <p className="mt-6 text-muted">Loading…</p>}
+
+      {/* Gate. Access is decided solely by the Stripe status the webhook
+          wrote — the subscriptions table has no write policy, so the browser
+          can never grant itself access. Settings is deliberately left open so
+          a locked-out user can still subscribe, cancel, export or delete. */}
+      {data && !hasActiveAccess(data.subscription) && (
+        <div className="mt-6">
+          <EmptyState
+            title="Your subscription isn't active"
+            action={
+              <Link href="/settings">
+                <Button>Go to Settings</Button>
+              </Link>
+            }
+          >
+            {data.subscription?.status == null
+              ? "Start your 14-day free trial in Settings to see your training load and readiness. Cancel any time before it ends and you won't be charged."
+              : `Your subscription status is "${data.subscription.status}", so the dashboard is locked. Manage billing in Settings to restore access.`}
+          </EmptyState>
+        </div>
+      )}
       {error && <p className="mt-6 text-warning">{error}</p>}
 
-      {data?.readiness && (
+      {hasAccess && data?.readiness && (
         <div className="mt-6">
           <ReadinessCard readiness={data.readiness} />
         </div>
       )}
 
-      {data && !data.status.connected && (
+      {hasAccess && data && !data.status.connected && (
         <div className="mt-4">
           <EmptyState
             title="Nothing connected yet"
@@ -215,7 +242,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {data?.status.connected && (
+      {hasAccess && data?.status.connected && (
         <div className="mt-4 space-y-4">
           <Panel padding="dense">
             <p className="text-sm text-muted">
