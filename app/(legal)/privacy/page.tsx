@@ -1,10 +1,10 @@
+import { LegalDoc } from "@/components/layout/LegalDoc";
+
 export const metadata = { title: "Privacy Policy — Thríamvos" };
 
 export default function PrivacyPage() {
   return (
-    <>
-      <h1>Privacy Policy</h1>
-      <p>Last updated: September 9, 2026</p>
+    <LegalDoc title="Privacy Policy" updated="September 9, 2026">
 
       <p>
         This Privacy Policy explains how Fitness and Sports Network, LLC, an Oklahoma limited liability
@@ -157,6 +157,6 @@ export default function PrivacyPage() {
 
       <h2>12. Contact</h2>
       <p>Questions or requests regarding this Privacy Policy can be sent to sweatisfree@gmail.com.</p>
-    </>
+    </LegalDoc>
   );
 }

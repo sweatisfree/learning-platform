@@ -1,10 +1,10 @@
+import { LegalDoc } from "@/components/layout/LegalDoc";
+
 export const metadata = { title: "Cookies Notice — Thríamvos" };
 
 export default function CookiesPage() {
   return (
-    <>
-      <h1>Cookies Notice</h1>
-      <p>Last updated: September 9, 2026</p>
+    <LegalDoc title="Cookies Notice" updated="September 9, 2026">
 
       <p>
         Thríamvos uses a very limited form of browser storage — no advertising or tracking cookies of any
@@ -45,6 +45,6 @@ export default function CookiesPage() {
 
       <h2>5. Contact</h2>
       <p>Questions about this notice can be sent to sweatisfree@gmail.com.</p>
-    </>
+    </LegalDoc>
   );
 }

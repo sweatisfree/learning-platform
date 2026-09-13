@@ -1,10 +1,10 @@
+import { LegalDoc } from "@/components/layout/LegalDoc";
+
 export const metadata = { title: "How Scores Are Calculated — Thríamvos" };
 
 export default function TransparencyPage() {
   return (
-    <>
-      <h1>How Your Scores Are Calculated</h1>
-      <p>Last updated: September 9, 2026</p>
+    <LegalDoc title="How Your Scores Are Calculated" updated="September 9, 2026">
 
       <p>
         This page explains, in plain language, how Thríamvos computes the numbers it shows you. We&apos;re
@@ -141,6 +141,6 @@ export default function TransparencyPage() {
         If anything here is unclear, or you want more detail on a specific calculation, email
         sweatisfree@gmail.com.
       </p>
-    </>
+    </LegalDoc>
   );
 }

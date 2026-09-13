@@ -6,6 +6,11 @@
   --background: #0b1220;
   --surface: #162033;
   --foreground: #f8fafc;
+  /* Long-form reading text. --foreground is right for headings and emphasis
+     but harsh over a whole page of prose, while --muted is a caption colour
+     that whole pages were being set in — legible for a line, tiring for a
+     policy. This sits between them at roughly 11:1 on --background. */
+  --body: #cbd5e1;
   --muted: #94a3b8;
   --accent: #22d3a7;
   --accent-hover: #1cae8b;
@@ -40,6 +45,7 @@
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-body: var(--body);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);

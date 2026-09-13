@@ -1,10 +1,10 @@
+import { LegalDoc } from "@/components/layout/LegalDoc";
+
 export const metadata = { title: "Terms and Conditions — Thríamvos" };
 
 export default function TermsPage() {
   return (
-    <>
-      <h1>Terms and Conditions</h1>
-      <p>Last updated: September 9, 2026</p>
+    <LegalDoc title="Terms and Conditions" updated="September 9, 2026">
 
       <p>
         These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of Thríamvos (the
@@ -135,6 +135,6 @@ export default function TermsPage() {
 
       <h2>13. Contact</h2>
       <p>Questions about these Terms can be sent to sweatisfree@gmail.com.</p>
-    </>
+    </LegalDoc>
   );
 }

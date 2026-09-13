@@ -1,10 +1,10 @@
+import { LegalDoc } from "@/components/layout/LegalDoc";
+
 export const metadata = { title: "Refund Policy — Thríamvos" };
 
 export default function RefundPolicyPage() {
   return (
-    <>
-      <h1>Refund Policy</h1>
-      <p>Last updated: September 9, 2026</p>
+    <LegalDoc title="Refund Policy" updated="September 9, 2026">
 
       <h2>1. Free Trial</h2>
       <p>
@@ -51,6 +51,6 @@ export default function RefundPolicyPage() {
 
       <h2>7. Contact</h2>
       <p>Billing questions can be sent to sweatisfree@gmail.com.</p>
-    </>
+    </LegalDoc>
   );
 }

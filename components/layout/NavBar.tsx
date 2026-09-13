@@ -47,9 +47,12 @@ function NavShell({
 }) {
   return (
     <div className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
-      {/* Opaque enough to read consistently over the dark hero, the light
-          bento sections it scrolls across, and the app's navy interior. */}
-      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 rounded-full border border-white/10 bg-[#141417]/90 py-2.5 pl-4 pr-2.5 backdrop-blur-xl sm:pl-5">
+      {/* --surface, the same colour as every card in the app, rather than the
+          warm near-black this used to be. Over the hero photography either
+          reads as dark glass, but on a flat --background page the old value
+          was visibly a different hue sitting on navy. Opaque enough to stay
+          readable across the light bento sections it scrolls over. */}
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 rounded-full border border-white/10 bg-surface/90 py-2.5 pl-4 pr-2.5 backdrop-blur-xl sm:pl-5">
         <Link
           href={home}
           className="flex shrink-0 items-center gap-2 font-heading text-lg font-semibold tracking-[-0.01em] text-white"
