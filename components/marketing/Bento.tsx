@@ -145,9 +145,12 @@ export function Bento() {
         <div className={CARD_BASE}>
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url(/marketing/stress-placeholder.svg)" }}
+            style={{ backgroundImage: "url(/marketing/home-watch.jpg)" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/25" />
+          {/* Heavier through the middle than the other cards: this one carries
+              the longest paragraph, over a photograph whose lighter areas would
+              otherwise cut into the text. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/30" />
           <div className="relative mt-auto">
             <h2 className="max-w-sm font-heading text-3xl font-semibold leading-[1.12] tracking-[-0.02em] text-white sm:text-4xl">
               When it doesn&apos;t know,

@@ -1,16 +1,12 @@
 import Link from "next/link";
+import { HeroSlideshow } from "./HeroSlideshow";
 
-// The background is a placeholder gradient asset — swap
-// /public/marketing/hero-placeholder.svg for real photography.
 export function Hero() {
   // -mt-20 (80px) intentionally exceeds the sticky nav's ~74px so the image
   // reaches the top edge at every breakpoint, with no background strip.
   return (
     <section className="relative -mt-20 flex min-h-[86svh] items-center overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url(/marketing/hero-placeholder.svg)" }}
-      />
+      <HeroSlideshow />
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/45 to-transparent" />
 
