@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { supabase } from "@/lib/supabase/client";
@@ -13,27 +14,50 @@ const PUBLIC_NAV_LINKS = [
   { href: "/faq", label: "FAQ" },
 ];
 
-const NAV_ITEM_CLASS = "rounded-full px-3 py-2 text-sm transition-colors sm:px-4";
+// Section navigation for the signed-in product. It belongs here, in the one
+// component that renders on EVERY page, rather than in a shell scoped to the
+// app routes — otherwise a signed-in reader on the FAQ or a policy page has no
+// way back to their dashboard.
+const APP_NAV_LINKS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/settings", label: "Settings" },
+];
+
+// whitespace-nowrap because "Log Out" wrapped to two lines and pushed the bar
+// out of shape once the signed-in nav gained its section links.
+const NAV_ITEM_CLASS = "whitespace-nowrap rounded-full px-2.5 py-2 text-sm transition-colors sm:px-4";
 
 // One shell for both signed-in and signed-out. Kept in flow (sticky, not
 // fixed) so pages other than the landing page need no offset padding — the
 // hero pulls itself up underneath it with a negative margin. Sharing the shell
 // means the header doesn't change shape at the moment of login, which was the
 // most visible seam between the marketing page and the app.
-function NavShell({ home, children }: { home: string; children: ReactNode }) {
+function NavShell({
+  home,
+  compactBrand = false,
+  children,
+}: {
+  home: string;
+  // The signed-in bar carries two section links on top of the account action,
+  // which is more than fits beside the wordmark on a phone. Drop to the mark
+  // alone there; the full wordmark returns from sm up and on marketing pages,
+  // where the brand is doing more work than the navigation.
+  compactBrand?: boolean;
+  children: ReactNode;
+}) {
   return (
     <div className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
       {/* Opaque enough to read consistently over the dark hero, the light
           bento sections it scrolls across, and the app's navy interior. */}
-      <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-white/10 bg-[#141417]/90 py-2.5 pl-5 pr-2.5 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 rounded-full border border-white/10 bg-[#141417]/90 py-2.5 pl-4 pr-2.5 backdrop-blur-xl sm:pl-5">
         <Link
           href={home}
-          className="flex items-center gap-2 font-heading text-lg font-semibold tracking-[-0.01em] text-white"
+          className="flex shrink-0 items-center gap-2 font-heading text-lg font-semibold tracking-[-0.01em] text-white"
         >
           <Image src="/thriamvos-mark.svg" alt="" width={22} height={22} />
-          Thríamvos
+          <span className={cn(compactBrand && "hidden sm:inline")}>Thríamvos</span>
         </Link>
-        <div className="flex items-center gap-1 sm:gap-2">{children}</div>
+        <div className="flex items-center gap-0.5 sm:gap-2">{children}</div>
       </nav>
     </div>
   );
@@ -41,6 +65,7 @@ function NavShell({ home, children }: { home: string; children: ReactNode }) {
 
 export function NavBar() {
   const { session, isLoading } = useSupabaseAuth();
+  const pathname = usePathname();
 
   if (isLoading) return null;
 
@@ -74,12 +99,26 @@ export function NavBar() {
     );
   }
 
-  // Section links (Dashboard, Settings) deliberately live in AppSidebar, not
-  // here. Both navigations are on screen at once in the app, so anything
-  // appearing in both would just be a duplicate. This keeps brand identity and
-  // account actions; the sidebar keeps navigation.
   return (
-    <NavShell home="/dashboard">
+    <NavShell home="/dashboard" compactBrand>
+      {APP_NAV_LINKS.map((link) => {
+        const isActive = pathname === link.href;
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              NAV_ITEM_CLASS,
+              // Teal marks the active section, the same signal the rest of the
+              // app uses for "you are here" and primary actions.
+              isActive ? "bg-accent/10 font-semibold text-accent" : "text-white/75 hover:text-white",
+            )}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
       <Link href="/faq" className={cn(NAV_ITEM_CLASS, "hidden text-white/75 hover:text-white sm:inline-block")}>
         FAQ
       </Link>
