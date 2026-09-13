@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { Button } from "@/components/ui/Button";
@@ -280,20 +281,16 @@ export default function SettingsPage() {
 
       <Panel as="section" className="mt-4">
         <SectionHeading className="mb-1">HealthKit Sync</SectionHeading>
-        <p className="mb-3 text-sm text-muted">
-          Requires an Apple Watch (or similar wearable) and the Health Auto Export app (Premium tier) from
-          the App Store.
-        </p>
-        <ol className="mb-4 list-decimal space-y-1 pl-5 text-sm text-muted">
-          <li>Generate a token below and copy it.</li>
-          <li>In Health Auto Export, create a REST API automation using the URL below.</li>
-          <li>
-            Add a header named <code>X-Health-Token</code> set to your token.
-          </li>
-          <li>Select Resting Heart Rate, HRV, Sleep, and Respiratory Rate, then run it.</li>
-        </ol>
+        {/* The walkthrough moved to /guides/apple-health. It is a one-time
+            procedure involving a paid third-party app, and sitting inline among
+            seven settings panels it read as one more thing to configure here.
+            What stays is the part you come back for: the credential. */}
         <p className="mb-4 text-sm text-muted">
-          No watch? Manual entry below works as a backup — no setup required.
+          Forwards resting heart rate, HRV, sleep and respiratory rate from an Apple Watch via the Health
+          Auto Export app.{" "}
+          <Link href="/guides/apple-health" className="text-accent underline">
+            Full setup guide →
+          </Link>
         </p>
 
         <div className="space-y-1 text-sm">
@@ -329,7 +326,18 @@ export default function SettingsPage() {
 
           {tokenStatus === "configured" && !generatedToken && (
             <p className="mt-2 text-xs text-muted">
-              A webhook token is already configured. Regenerating replaces it and invalidates the old one.
+              A webhook token is already configured. Regenerating replaces it and invalidates the old one,
+              so the automation in Health Auto Export will need the new value.
+            </p>
+          )}
+
+          {tokenStatus === "none" && !generatedToken && (
+            <p className="mt-2 text-xs text-muted">
+              No token yet. Generate one, then follow the{" "}
+              <Link href="/guides/apple-health" className="text-accent underline">
+                setup guide
+              </Link>
+              . No watch? Manual entry below works with no setup at all.
             </p>
           )}
 

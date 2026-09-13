@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const LEGAL_LINKS = [
   { href: "/faq", label: "FAQ" },
+  { href: "/guides/apple-health", label: "Apple Health Setup" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
   { href: "/cookies", label: "Cookies" },

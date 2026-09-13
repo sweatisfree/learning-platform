@@ -102,6 +102,14 @@ export function Integrations() {
             No new hardware, no extra straps. Connect the accounts you already use and Thríamvos does the
             rest — quietly, in the background, every day.
           </p>
+          {/* Linked from the marketing page on purpose: "will this work with my
+              watch?" is a question people have before paying, not after. */}
+          <Link
+            href="/guides/apple-health"
+            className="mt-5 inline-block text-sm text-white/70 underline hover:text-white"
+          >
+            How the Apple Health connection works →
+          </Link>
         </div>
       </div>
     </section>

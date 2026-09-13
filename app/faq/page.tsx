@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { PageHeading } from "@/components/ui/Heading";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const metadata = { title: "FAQ — Thríamvos" };
 
@@ -8,7 +8,7 @@ export const metadata = { title: "FAQ — Thríamvos" };
 // "not legal advice" banner that would be wrong here, but the prose styling
 // is shared so the two read as the same document family.
 const PROSE_CLASS =
-  "mt-8 space-y-5 text-sm leading-relaxed text-muted [&_strong]:text-foreground [&_a]:text-accent [&_a]:underline";
+  "mt-8 space-y-5 leading-relaxed text-body [&_strong]:text-foreground [&_a]:text-accent [&_a]:underline";
 
 interface Entry {
   question: string;
@@ -128,7 +128,8 @@ const SECTIONS: Section[] = [
             configure to forward readings to us, and we point at Health Auto Export for that. It is
             chosen and configured by you, it is not controlled by us, and its own privacy practices
             govern how it reads your Apple Health data before sending it on. A native iOS app would
-            remove that hop entirely; it is not built yet.
+            remove that hop entirely; it is not built yet. The full walkthrough is on the{" "}
+            <Link href="/guides/apple-health">Apple Health setup guide</Link>.
           </>
         ),
       },
@@ -232,18 +233,12 @@ const SECTIONS: Section[] = [
 
 export default function FaqPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
-      <Link href="/" className="text-sm text-accent underline">
-        ← Back to Thríamvos
-      </Link>
+    <>
+      <PageHeader title="Questions">
+        The things worth knowing before you trust a number about your own body.
+      </PageHeader>
 
-      <div className="mt-6">
-        <PageHeading>Questions</PageHeading>
-        <p className="mt-3 text-muted">
-          The things worth knowing before you trust a number about your own body.
-        </p>
-      </div>
-
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-4 sm:px-6">
       {SECTIONS.map((section) => (
         <section key={section.title} className="mt-12">
           <h2 className="font-heading text-lg font-semibold tracking-[-0.01em] text-foreground">
@@ -264,6 +259,7 @@ export default function FaqPage() {
         Something not answered here? Email{" "}
         <strong className="text-foreground">sweatisfree@gmail.com</strong>.
       </p>
-    </main>
+      </main>
+    </>
   );
 }
