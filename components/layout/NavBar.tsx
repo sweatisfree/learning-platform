@@ -2,16 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
-
-const NAV_LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/settings", label: "Settings" },
-];
 
 const PUBLIC_NAV_LINKS = [
   { href: "/#roadmap", label: "Roadmap" },
@@ -47,7 +41,6 @@ function NavShell({ home, children }: { home: string; children: ReactNode }) {
 
 export function NavBar() {
   const { session, isLoading } = useSupabaseAuth();
-  const pathname = usePathname();
 
   if (isLoading) return null;
 
@@ -81,20 +74,15 @@ export function NavBar() {
     );
   }
 
+  // Section links (Dashboard, Settings) deliberately live in AppSidebar, not
+  // here. Both navigations are on screen at once in the app, so anything
+  // appearing in both would just be a duplicate. This keeps brand identity and
+  // account actions; the sidebar keeps navigation.
   return (
     <NavShell home="/dashboard">
-      {NAV_LINKS.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className={cn(
-            NAV_ITEM_CLASS,
-            pathname === link.href ? "bg-white/10 text-white" : "text-white/75 hover:text-white",
-          )}
-        >
-          {link.label}
-        </Link>
-      ))}
+      <Link href="/faq" className={cn(NAV_ITEM_CLASS, "hidden text-white/75 hover:text-white sm:inline-block")}>
+        FAQ
+      </Link>
       <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" />
       <button
         type="button"

@@ -5,6 +5,7 @@ import { useSupabaseAuth } from "@/components/providers/SupabaseProvider";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { PageHeading, SectionHeading } from "@/components/ui/Heading";
+import { BandBadge, bandTextClass } from "@/components/ui/BandBadge";
 import {
   startStravaAuthorization,
   fetchStravaStatus,
@@ -26,19 +27,9 @@ import { SubscriptionPanel } from "@/components/billing/SubscriptionPanel";
 import { AccountDataPanel } from "@/components/account/AccountDataPanel";
 import { fetchSubscription, type Subscription } from "@/lib/stripe/subscription";
 import type { AthleteProfileFields } from "@/lib/types/user-profile";
-import {
-  computeAutonomicBaseline,
-  computeAutonomicRecoveryIndex,
-  type AutonomicRecoveryIndex,
-} from "@/lib/engine/loadCalculator";
+import { computeAutonomicBaseline, computeAutonomicRecoveryIndex } from "@/lib/engine/loadCalculator";
 
 type TokenStatus = "loading" | "none" | "configured";
-
-const BAND_COLOR_CLASS: Record<NonNullable<AutonomicRecoveryIndex["band"]>, string> = {
-  high: "text-success",
-  moderate: "text-warning",
-  low: "text-danger",
-};
 
 // Plain data fetchers with no setState inside — state updates always happen
 // in an explicit .then() callback at the call site, never inside the effect
@@ -375,11 +366,14 @@ export default function SettingsPage() {
             </>
           ) : (
             <>
-              <p
-                className={`font-heading text-2xl font-bold capitalize ${BAND_COLOR_CLASS[recoveryIndex.band]}`}
-              >
-                {recoveryIndex.score.toFixed(0)} · {recoveryIndex.band}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <span
+                  className={`font-heading text-2xl font-semibold ${bandTextClass(recoveryIndex.band)}`}
+                >
+                  {recoveryIndex.score.toFixed(0)}
+                </span>
+                <BandBadge band={recoveryIndex.band} />
+              </div>
               <p className="mt-1 text-xs text-muted">
                 Computed from {recoveryIndex.coverage.signalsUsed} of 4 signals, across{" "}
                 {engineReadings.length} usable reading(s).
