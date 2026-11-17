@@ -67,6 +67,15 @@ export default function TransparencyPage() {
         coefficients in TRIMP, that 1.2 is <em>our</em> judgement rather than a published constant — we name
         it here rather than fold it silently into your numbers.
       </p>
+      <p>
+        <strong>How a session gets an RPE.</strong> Strava does not send us perceived exertion, so an
+        activity arrives unrated. An unrated session is scored by heart rate where we have it, and otherwise
+        by its length alone — which means an hour of heavy lifting counts the same as an hour of anything
+        else. You can rate any session on your dashboard, and choose whether it was general work, weights, or
+        isometric holds. Rating it moves it onto the formula above. We never guess an RPE on your behalf, and
+        an unrated session is labelled as scored by duration rather than quietly treated as though it carried
+        an effort we never asked for.
+      </p>
 
       <h2>5. Autonomic Recovery Index</h2>
       <p>

@@ -1,4 +1,4 @@
-import type { Activity } from "@/lib/types/activity";
+import type { Activity, NonGpsModality } from "@/lib/types/activity";
 import type { Sex } from "@/lib/types/common";
 import { computeAcwr, type AcwrResult } from "./acwr";
 import { computeSrpe, type SrpeInput } from "./srpe";
@@ -55,10 +55,11 @@ export function computeActivityLoad(
       value: computeModalitySrpe({
         rpe: activity.rpe,
         durationMinutes: activity.movingTimeSeconds / 60,
-        // The manual entry form has no modality selector (date/duration/
-        // distance/avg HR/RPE only), so every RPE-logged activity is treated
-        // as generic non-GPS work rather than guessing strength vs. isophit.
-        modality: "non-gps",
+        // Falls back to generic non-GPS work when the session was rated but
+        // not categorised, which is how every RPE-logged activity behaved
+        // before the modality could be recorded. Unrated sessions never reach
+        // here at all, so this is not the default for Strava's whole feed.
+        modality: activity.modality ?? "non-gps",
       }),
       method: "srpe",
     };
@@ -146,7 +147,7 @@ export function computeAcuteChronicLoad(
 //    GPS/power (strength training, ISOPHIT isometric holds, other non-GPS work).
 // ---------------------------------------------------------------------------
 
-export type NonGpsModality = "strength" | "isophit" | "non-gps";
+export type { NonGpsModality } from "@/lib/types/activity";
 
 // Tunable business multipliers, not a peer-reviewed constant like Banister
 // TRIMP's coefficients — ISOPHIT's isometric holds are weighted above

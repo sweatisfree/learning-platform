@@ -15,6 +15,8 @@ import { computeRecoveryScore, type RecoveryScore } from "@/lib/engine/recovery-
 import { fetchAthleteProfile, toActivityLoadOptions } from "@/lib/health/athleteProfile";
 import { fetchAutonomicReadings } from "@/lib/health/readings";
 import { fetchSubscription, hasActiveAccess, type Subscription } from "@/lib/stripe/subscription";
+import { fetchActivityEfforts, applyEfforts } from "@/lib/activities/effort";
+import { ActivityEffortControl } from "@/components/workouts/ActivityEffortControl";
 import { Panel } from "@/components/ui/Panel";
 import { PageHeading } from "@/components/ui/Heading";
 import { Stat } from "@/components/ui/Stat";
@@ -45,14 +47,22 @@ async function loadDashboardData(
     // The profile is optional context, not a prerequisite — if that table is
     // missing or unreadable, load still computes (via the duration fallback)
     // rather than the whole dashboard collapsing into an error message.
-    const [status, profile, readingsResult, subscription] = await Promise.all([
+    const [status, profile, readingsResult, subscription, efforts] = await Promise.all([
       fetchStravaStatus(),
       fetchAthleteProfile(userId).catch(() => null),
       fetchAutonomicReadings(),
       fetchSubscription().catch(() => null),
+      // Optional context like the profile: an unreadable effort table must not
+      // collapse the dashboard, it just means nothing is rated yet.
+      fetchActivityEfforts().catch(() => []),
     ]);
 
-    const activities = status.connected ? await fetchStravaActivitiesFromApi() : [];
+    // Ratings are attached before load is computed, so a rated lift reaches
+    // the engine as sRPE rather than falling back to bare minutes.
+    const activities = applyEfforts(
+      status.connected ? await fetchStravaActivitiesFromApi() : [],
+      efforts,
+    );
     const acwr =
       activities.length > 0
         ? computeAcuteChronicLoad(activities, toActivityLoadOptions(profile))
@@ -214,7 +224,15 @@ function formatDuration(seconds: number): string {
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
 }
 
-function RecentActivityCard({ activities }: { activities: Activity[] }) {
+function RecentActivityCard({
+  activities,
+  userId,
+  onEffortSaved,
+}: {
+  activities: Activity[];
+  userId: string;
+  onEffortSaved: () => void;
+}) {
   if (activities.length === 0) {
     return (
       <EmptyState title="No recent activity">
@@ -229,21 +247,35 @@ function RecentActivityCard({ activities }: { activities: Activity[] }) {
 
   return (
     <Panel>
-      <p className="mb-3 text-sm text-muted">Recent activity</p>
+      <p className="mb-1 text-sm text-muted">Recent activity</p>
+      {/* Strava sends no perceived effort, so an unrated session can only be
+          scored by heart rate or, failing that, by its length — which makes an
+          hour of heavy lifting weigh the same as an hour of anything else.
+          Rating it here moves it onto sRPE. */}
+      <p className="mb-3 text-xs text-muted">
+        Rate a session to score it by effort instead of duration.
+      </p>
       <ul className="divide-y divide-border">
         {recent.map((activity) => (
-          <li key={activity.id} className="flex items-baseline justify-between gap-3 py-2 first:pt-0">
-            <div className="min-w-0">
-              <p className="truncate text-sm text-foreground">{activity.name}</p>
-              <p className="text-xs text-muted">
-                {new Date(activity.startDate).toLocaleDateString()} · {activity.type}
+          <li key={activity.id} className="py-2.5 first:pt-0">
+            <div className="flex items-baseline justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm text-foreground">{activity.name}</p>
+                <p className="text-xs text-muted">
+                  {new Date(activity.startDate).toLocaleDateString()} · {activity.type}
+                </p>
+              </div>
+              <p className="shrink-0 text-xs text-muted">
+                {formatDuration(activity.movingTimeSeconds)}
+                {activity.distanceMeters > 0 &&
+                  ` · ${(activity.distanceMeters / 1000).toFixed(1)} km`}
               </p>
             </div>
-            <p className="shrink-0 text-xs text-muted">
-              {formatDuration(activity.movingTimeSeconds)}
-              {activity.distanceMeters > 0 &&
-                ` · ${(activity.distanceMeters / 1000).toFixed(1)} km`}
-            </p>
+            <ActivityEffortControl
+              activity={activity}
+              userId={userId}
+              onSaved={onEffortSaved}
+            />
           </li>
         ))}
       </ul>
@@ -257,6 +289,10 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  // Bumped when an activity is rated. Load is a function of every activity at
+  // once, so one rating changes ACWR and readiness too — the whole dashboard
+  // is recomputed rather than one row patched in place.
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     if (!userId) return;
@@ -265,7 +301,7 @@ export default function DashboardPage() {
       setError(result.error);
       setIsLoadingData(false);
     });
-  }, [userId]);
+  }, [userId, reloadToken]);
 
   if (isLoading) return null;
 
@@ -357,7 +393,11 @@ export default function DashboardPage() {
           )}
 
           <div className="lg:col-span-2">
-            <RecentActivityCard activities={data.activities} />
+            <RecentActivityCard
+              activities={data.activities}
+              userId={session.user.id}
+              onEffortSaved={() => setReloadToken((token) => token + 1)}
+            />
           </div>
         </div>
       )}
