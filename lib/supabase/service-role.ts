@@ -56,6 +56,10 @@ export async function upsertWebhookHealthReadings(
     recorded_date: reading.recordedDate,
     resting_heart_rate: reading.restingHeartRate,
     hrv: reading.hrv,
+    // This path is Apple Health forwarded by an export app, and Apple reports
+    // SDNN. Recorded on the row rather than inferred from the source later,
+    // so the history stays correct if that ever stops being true.
+    hrv_method: reading.hrv == null ? null : ("sdnn" as const),
     sleep_hours: reading.sleepHours,
     respiratory_rate: reading.respiratoryRate,
   }));

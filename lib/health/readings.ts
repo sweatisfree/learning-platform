@@ -1,7 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
 import type { AutonomicReading } from "@/lib/engine/loadCalculator";
+import { collapseReadingsByDate } from "@/lib/health/collapseReadings";
+import type { HealthReadingSource, HrvMethod } from "@/lib/types/health-reading";
 
-export type HealthReadingSource = "webhook" | "manual";
+export type { HealthReadingSource } from "@/lib/types/health-reading";
 
 // A row as stored, addressable by id so it can be deleted individually. The
 // engine's AutonomicReading is derived from this rather than fetched
@@ -10,6 +12,7 @@ export interface StoredHealthReading extends AutonomicReading {
   id: string;
   recordedDate: string;
   source: HealthReadingSource;
+  hrvMethod: HrvMethod | null;
 }
 
 export interface StoredReadingsResult {
@@ -22,22 +25,13 @@ export interface ReadingsResult {
   error: string | null;
 }
 
-function hasAnySignal(reading: AutonomicReading): boolean {
-  return (
-    reading.restingHeartRate != null ||
-    reading.hrv != null ||
-    reading.sleepHours != null ||
-    reading.respiratoryRate != null
-  );
-}
-
 // Unfiltered on purpose: a row with no usable signal still exists in the
 // database, and filtering it here would make it invisible and therefore
 // undeletable in the management list.
 export async function fetchStoredHealthReadings(): Promise<StoredReadingsResult> {
   const { data, error } = await supabase
     .from("health_readings")
-    .select("id, recorded_date, source, resting_heart_rate, hrv, sleep_hours, respiratory_rate")
+    .select("id, recorded_date, source, resting_heart_rate, hrv, hrv_method, sleep_hours, respiratory_rate")
     .order("recorded_date", { ascending: true });
   if (error) return { readings: [], error: error.message };
 
@@ -45,6 +39,7 @@ export async function fetchStoredHealthReadings(): Promise<StoredReadingsResult>
     id: row.id as string,
     recordedDate: row.recorded_date as string,
     source: row.source as HealthReadingSource,
+    hrvMethod: (row.hrv_method ?? null) as HrvMethod | null,
     restingHeartRate: row.resting_heart_rate ?? undefined,
     hrv: row.hrv ?? undefined,
     sleepHours: row.sleep_hours ?? undefined,
@@ -53,10 +48,14 @@ export async function fetchStoredHealthReadings(): Promise<StoredReadingsResult>
   return { readings, error: null };
 }
 
-// Drops rows with no usable signal at all — everything else feeds the engine's
-// graceful degradation, where any subset of the four metrics is fine.
+// One reading per date, not one per stored row. Several rows can share a date
+// (one per source), and handing the engine all of them weights that day once
+// per source. See collapseReadingsByDate for the picking rule.
+//
+// Rows with no usable signal are dropped there, so what reaches the engine is
+// only days that measured something — any subset of the four metrics is fine.
 export function toAutonomicReadings(stored: readonly StoredHealthReading[]): AutonomicReading[] {
-  return stored.filter(hasAnySignal).map((reading) => ({
+  return collapseReadingsByDate(stored).map((reading) => ({
     restingHeartRate: reading.restingHeartRate,
     hrv: reading.hrv,
     sleepHours: reading.sleepHours,
