@@ -1,8 +1,11 @@
 import Link from "next/link";
 
 const LEGAL_LINKS = [
+  // The Apple Health guide is deliberately not here. It describes an advanced
+  // setup requiring a paid third-party app, so it is reached from the FAQ, the
+  // integrations section and Settings rather than offered to every visitor as
+  // though it were the ordinary way in.
   { href: "/faq", label: "FAQ" },
-  { href: "/guides/apple-health", label: "Apple Health Setup" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
   { href: "/cookies", label: "Cookies" },

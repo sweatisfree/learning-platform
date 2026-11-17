@@ -121,7 +121,7 @@ export function AuthCard() {
       <p className="mb-8 text-lg text-muted">
         {wantsCheckout
           ? "Create an account to start your 14-day free trial. We need it to attach the subscription to you."
-          : "Training readiness and recovery, powered by Strava and Apple Health."}
+          : "Training readiness and recovery, computed from your Strava history and your own daily readings."}
       </p>
       <form onSubmit={handleLogin} className="space-y-3">
         <Input

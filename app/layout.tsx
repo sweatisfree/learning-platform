@@ -15,7 +15,8 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL("https://learning-platform-sweat-is-free.vercel.app"),
   title: "Thríamvos",
-  description: "Training readiness and recovery, powered by Strava and Apple Health.",
+  description:
+    "Training readiness and recovery, computed from your Strava history and your own daily readings.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

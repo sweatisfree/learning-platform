@@ -1,10 +1,20 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils/cn";
+
+const ONE_CLICK = "Connect in one click";
 
 // Only the two integrations that actually exist are shown, and as text tiles
 // rather than third-party logo files (no redistribution rights for those).
 const INTEGRATIONS = [
-  { name: "Strava", detail: "Activities, duration, distance, heart rate & power" },
-  { name: "Apple Health", detail: "Resting heart rate & HRV via a HealthKit export app" },
+  { name: "Strava", detail: "Activities, duration, distance, heart rate & power", effort: ONE_CLICK },
+  // Named for what it takes, not what it promises. Apple gives a website no way
+  // to read HealthKit, so this route needs a paid third-party app on the phone
+  // and is the one connection here that is not a single click.
+  {
+    name: "Apple Health",
+    detail: "Recovery signals, if you add a separate export app",
+    effort: "Extra setup required",
+  },
 ];
 
 function PhoneMockup() {
@@ -52,14 +62,27 @@ function PhoneMockup() {
   );
 }
 
-function IntegrationTile({ name, detail }: { name: string; detail: string }) {
+// The badge said "Connected" on every tile, to a visitor who has connected
+// nothing. Illustrative on the Strava tile and plainly untrue on the Apple
+// Health one, where connecting is the hard part. It now states the effort each
+// route actually takes, which is the thing a visitor is trying to find out.
+function IntegrationTile({ name, detail, effort }: { name: string; detail: string; effort: string }) {
+  const isOneClick = effort === ONE_CLICK;
   return (
     <div className="w-full max-w-[236px] rounded-3xl border border-white/12 bg-white/[0.06] p-5 backdrop-blur-sm">
       <p className="font-heading text-lg font-semibold text-white">{name}</p>
       <p className="mt-1.5 text-sm leading-relaxed text-white/60">{detail}</p>
-      <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-success">
-        <span className="h-1.5 w-1.5 rounded-full bg-success" />
-        Connected
+      <p
+        className={cn(
+          "mt-3 inline-flex items-center gap-1.5 text-xs",
+          isOneClick ? "text-success" : "text-warning",
+        )}
+      >
+        <span
+          className={cn("h-1.5 w-1.5 rounded-full", isOneClick ? "bg-success" : "bg-warning")}
+          aria-hidden
+        />
+        {effort}
       </p>
     </div>
   );
@@ -102,13 +125,15 @@ export function Integrations() {
             No new hardware, no extra straps. Connect the accounts you already use and Thríamvos does the
             rest — quietly, in the background, every day.
           </p>
-          {/* Linked from the marketing page on purpose: "will this work with my
-              watch?" is a question people have before paying, not after. */}
+          {/* Linked from the marketing page on purpose: "what will this take,
+              and will it work with my watch?" is a question people have before
+              paying, not after. Worded so nobody reaches the guide expecting a
+              one-click connection. */}
           <Link
             href="/guides/apple-health"
             className="mt-5 inline-block text-sm text-white/70 underline hover:text-white"
           >
-            How the Apple Health connection works →
+            What connecting Apple Health involves →
           </Link>
         </div>
       </div>

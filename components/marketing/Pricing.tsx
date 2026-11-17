@@ -1,8 +1,13 @@
 import Link from "next/link";
 
+// Lists only what a new subscriber can rely on getting. Apple Health was here
+// until it became clear no reading had ever arrived through it: it needs a
+// paid third-party app and is unverified end to end, so charging for it as a
+// feature is a promise the product cannot keep. It returns to this list when a
+// reading actually lands. See docs/integration-discovery.md.
 const INCLUDED = [
   "Strava sync for training load",
-  "Apple Health sync for recovery data",
+  "Recovery readings you enter in seconds, or forward from Apple Health",
   "A daily readiness figure, split into what made it",
   "Every number labelled with the formula behind it",
   "Told plainly when there isn't enough data to score",
