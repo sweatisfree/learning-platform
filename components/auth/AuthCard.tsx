@@ -159,6 +159,16 @@ export function AuthCard() {
             .
           </span>
         </label>
+        {/* The point of rejection is the only place the turned-away visitor is
+            definitely standing. Someone who cannot tick that box has no route
+            onward otherwise, and leaves without us ever knowing they came. */}
+        <p className="text-xs text-muted">
+          Under 18?{" "}
+          <a href="/waitlist" className="text-accent underline">
+            Tell us you&apos;re waiting
+          </a>
+          .
+        </p>
         <div className="flex gap-3">
           <Button type="submit" className="flex-1">
             Log In
